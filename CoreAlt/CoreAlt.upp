@@ -1,0 +1,49 @@
+description "U++ compatible Non-GUI code. Streams, NTL containers, concrete types, Value, XML, C parsing etc...\377B128,81,0";
+
+options(BUILDER_OPTION) NOWARNINGS;
+
+library(WIN32) shlwapi;
+
+library(WIN32) Ws2_32;
+
+library(POSIX) pthread;
+
+file
+	Core.h options(BUILDER_OPTION) PCH,
+	Core.cpp,
+	Defs.h,
+	Macros.h,
+	Ops.h,
+	Hash.h,
+	Algo.h,
+	String_.h,
+	StringInline.inl highlight cpp,
+	Tuple.h,
+	Vector.h,
+	Vector.cpp,
+	Stream.h,
+	Stream.cpp,
+	Util.h,
+	Util.cpp,
+	Chrono.h,
+	Chrono.cpp,
+	Thread.h,
+	Thread.cpp,
+	Socket.h,
+	Socket.cpp,
+	Callback.h,
+	Callback.cpp,
+	Graph.h,
+	Graph.cpp,
+	Geom.h,
+	Geom.cpp,
+	Ptr.h,
+	Topt.h,
+	Value.h,
+	Value.cpp,
+	Parser.h,
+	Parser.cpp,
+	JSON.h,
+	JSON.cpp,
+	System.h;
+
