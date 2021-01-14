@@ -166,12 +166,7 @@ int Time::GetStamp() const {
 	return Get() - begin;
 }
 
-String GetTimeDurationString(Time begin, Time end) {
-	int64 diff = end.Get() - begin.Get();
-	Time t;
-	t.Set(diff);
-	return t.ToDiffString();
-}
+
 
 
 
@@ -467,20 +462,20 @@ void TimeStop::Reset() {
 }
 
 int TimeStop::Elapsed() const {
-	return (int)(ElapsedSeconds() * 1000);
+	return (int)(Seconds() * 1000);
 }
 
-double TimeStop::ElapsedSeconds() const {
+double TimeStop::Seconds() const {
 	std::chrono::high_resolution_clock::time_point stop = high_resolution_clock::now();
 	duration<double> time_span = duration_cast<duration<double> >(stop - start);
 	return time_span.count();
 }
 
 int TimeStop::ResetElapsed() {
-	return (int)(ResetElapsedSeconds() * 1000);
+	return (int)(ResetSeconds() * 1000);
 }
 
-double TimeStop::ResetElapsedSeconds() {
+double TimeStop::ResetSeconds() {
 	std::chrono::high_resolution_clock::time_point stop = high_resolution_clock::now();
 	duration<double> time_span = duration_cast<duration<double> >(stop - start);
 	start = stop;
@@ -488,7 +483,7 @@ double TimeStop::ResetElapsedSeconds() {
 }
 
 String TimeStop::ToString() const {
-	double d = ElapsedSeconds();
+	double d = Seconds();
 	int sec = d;
 	int ms = (d - (double)sec) * 1000;
 	String s;

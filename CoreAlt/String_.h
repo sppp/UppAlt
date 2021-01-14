@@ -453,7 +453,7 @@ public:
 	StringT Left(int i) const { return Mid(0, i); }
 	StringT Right(int i) const { return Mid(GetCount() - i, i); }
 	
-	void Remove(int begin, int count) {
+	void Remove(int begin, int count=1) {
 		ASSERT(begin >= 0 && count >= 0);
 		begin = max(0, begin);
 		count = max(0, count);
@@ -473,6 +473,7 @@ public:
 		else
 			Clear();
 	}
+	bool Insert(int begin, T chr) {return Insert(begin, &chr, 1);}
 	bool Insert(int begin, const T* str, int n) {
 		if (begin < 0 || begin > GetCount() || !str || n <= 0)
 			return false;

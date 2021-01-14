@@ -28,7 +28,9 @@ struct Date {
 };
 
 struct Time : public Date {
-	uint8 hour, min, sec;
+	uint8 hour;
+	union {uint8 min; uint8 minute;};
+	union {uint8 sec; uint8 second;};
 	
 	
 	Time() {}
@@ -71,10 +73,10 @@ public:
 	TimeStop() {}
 		
 	void Reset();
-	int Elapsed() const;
-	double ElapsedSeconds() const;
-	int ResetElapsed();
-	double ResetElapsedSeconds();
+	double Elapsed() const;
+	double Seconds() const;
+	double ResetElapsed();
+	double ResetSeconds();
 	String ToString() const;
 };
 

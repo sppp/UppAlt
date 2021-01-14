@@ -80,12 +80,22 @@ DEFAULT_SERIALIZER(uint64)
 DEFAULT_SERIALIZER(float)
 DEFAULT_SERIALIZER(double)
 
-class FileIn : public Stream {
+class FileStream : public Stream {
+	
+protected:
 	mutable FILE* s = NULL;
+	
+public:
+	FileStream() {}
+	FileStream(FILE* s) : s(s) {}
+	
+};
+
+class FileIn : public FileStream {
 
 public:
 	FileIn() {}
-	FileIn(FILE* s) : s(s) {}
+	FileIn(FILE* s) : FileStream(s) {}
 	FileIn(String path) {Open(path);}
 	~FileIn() { Close(); }
 
@@ -160,12 +170,11 @@ public:
 String LoadFile(String path);
 
 
-class FileOut : public Stream {
-	mutable FILE* s = NULL;
+class FileOut : public FileStream {
 
 public:
 	FileOut() {}
-	FileOut(FILE* s) : s(s) {}
+	FileOut(FILE* s) : FileStream(s) {}
 	FileOut(String path) {Open(path);}
 	~FileOut() { Close(); }
 

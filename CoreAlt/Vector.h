@@ -150,9 +150,9 @@ class Vector : Moveable<Vector<K>> {
 	void Pick0(Vector& v) { data = v.data; v.data = 0; reserved = v.reserved; v.reserved = 0; count = v.count; v.count = 0; }
 	
 public:
-	template <int I>
+	template <class P, int I>
 	struct Iterator0 {
-		K* kit = NULL;
+		P* kit = NULL;
 		Iterator0() {}
 		Iterator0(K* kit) : kit(kit) {}
 		Iterator0(const Iterator0& it) {*this = it;}
@@ -161,15 +161,17 @@ public:
 		Iterator0 operator++(int i) {Iterator ret = *this; kit += I; return ret;}
 		void operator--(int i) {kit -= I;}
 		void operator+=(int i) {kit += i;}
-		K* operator->() const {return kit;}
-		K* Get() const {return kit;}
-		operator K*() const {return kit;}
-		K& operator*() const {return *kit;}
+		P* operator->() const {return kit;}
+		P* Get() const {return kit;}
+		operator P*() const {return kit;}
+		P& operator*() const {return *kit;}
 		bool operator!=(const Iterator0& it) const {return it.kit != kit;}
-		K& operator()() const {return *kit;}
+		P& operator()() const {return *kit;}
 	};
-	typedef Iterator0<+1> Iterator;
-	typedef Iterator0<-1> RIterator;
+	typedef Iterator0<const K, +1> ConstIterator;
+	typedef Iterator0<K,+1> Iterator;
+	typedef Iterator0<K,-1> RIterator;
+	typedef Iterator0<K,+1> iterator;
 
 	Vector(std::initializer_list<K> l) {
 		Reserve(l.size());
@@ -625,9 +627,13 @@ public:
 	int FindAdd(const K& key) {int i = Find(key); if (i >= 0) return i; i = GetCount(); Add(key); return i;}
 
 	int FindHash(uint32 hash) const {
-		for (int i = 0; i < hashes.GetCount(); i++) {
-			if (hashes[i] == hash)
-				return i;
+		uint32* begin = hashes.Get();
+		uint32* end = hashes.Get() + hashes.GetCount();
+		uint32* it = begin;
+		while (it != end) {
+			if (*it == hash)
+				return it - begin;
+			it++;
 		}
 		return -1;
 	}
@@ -704,6 +710,12 @@ public:
 		if (i >= 0) return values[i];
 		keys.Add(key);
 		return values.Add();
+	}
+	V& GetAdd(const K& key, const V& value) {
+		int i = keys.Find(key);
+		if (i >= 0) return values[i];
+		keys.Add(key);
+		return values.Add(value);
 	}
 
 	Iterator InsertIterator(const Iterator& it, const K& key, const V& value) {int pos = GetPos(it); Insert(pos, key, value); Iterator cur = Begin(); cur += pos; return cur;}
