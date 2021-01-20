@@ -25,44 +25,48 @@ using GetType = typename GetNthType<N, Args...>::type;
 template<typename First, typename... Rest>
 struct Tuple : Moveable<Tuple<First, Rest...>> {
 	Tuple() {}
-	Tuple(First first, Rest... rest): rest(rest...), first(first) {}
-	Tuple(First first, Tuple<Rest...> rest): rest(rest), first(first) {}
+	Tuple(First a, Rest... b): b(b...), a(a) {}
+	Tuple(First a, Tuple<Rest...> b): b(b), a(a) {}
 	Tuple(const Tuple& t) {*this = t;}
-	void operator=(const Tuple& t) {first = t.first; rest = t.rest;}
+	void operator=(const Tuple& t) {a = t.a; b = t.b;}
 	
-	First first;
-	Tuple<Rest...> rest;
+	First a;
+	Tuple<Rest...> b;
 	
-	First& operator->() {return first;}
-	template <class T> T* Find() const {if (typeid(&first) == typeid(T)) return (T*)&first; if (typeid(first) == typeid(T)) return (T*)&first; return rest.template Find<T>();}
-	template <class T> void ForEach(T fn) const {fn(first); rest.ForEach(fn);}
+	First& operator->() {return a;}
+	template <class T> T* Find() const {if (typeid(&a) == typeid(T)) return (T*)&a; if (typeid(a) == typeid(T)) return (T*)&a; return b.template Find<T>();}
+	template <class T> void ForEach(T fn) const {fn(a); b.ForEach(fn);}
 };
 
 template<typename First>
 struct Tuple<First> : Moveable<Tuple<First>> {
 	Tuple() {}
-	Tuple(First first): first(first) {}
+	Tuple(First a): a(a) {}
 	Tuple(const Tuple& t) {*this = t;}
-	void operator=(const Tuple& t) {first = t.first;}
+	void operator=(const Tuple& t) {a = t.a;}
 	
-	First first;
+	First a;
 	
-	First& operator->() {return first;}
-	template <class T> T* Find() const {if (typeid(&first) == typeid(T)) return (T*)&first; if (typeid(first) == typeid(T)) return (T*)&first; return NULL;}
-	template <class T> void ForEach(T fn) const {fn(first);}
+	First& operator->() {return a;}
+	template <class T> T* Find() const {if (typeid(&a) == typeid(T)) return (T*)&a; if (typeid(a) == typeid(T)) return (T*)&a; return NULL;}
+	template <class T> void ForEach(T fn) const {fn(a);}
+	
+	operator First& () {return a;}
+	operator const First& () const {return a;}
+	
 };
 
 template<int index, typename First, typename... Rest>
 struct GetImpl {
-	static auto value(const Tuple<First, Rest...>* t) -> decltype(GetImpl < index - 1, Rest... >::value(&t->rest)) {
-		return GetImpl < index - 1, Rest... >::value(&t->rest);
+	static auto value(const Tuple<First, Rest...>* t) -> decltype(GetImpl < index - 1, Rest... >::value(&t->b)) {
+		return GetImpl < index - 1, Rest... >::value(&t->b);
 	}
 };
 
 template<typename First, typename... Rest>
 struct GetImpl<0, First, Rest...> {
 	static First value(const Tuple<First, Rest...>* t) {
-		return t->first;
+		return t->a;
 	}
 };
 
@@ -86,17 +90,17 @@ Tuple<T...> MakeTuple(T... args) {
 
 
 /*template <class First, class T, class R>
-Tuple<First, T::> TupleCat(First f, T rest) {
-	//return Tuple<First, decltype(rest.rest)>(f.first, rest.rest);
+Tuple<First, T::> TupleCat(First f, T b) {
+	//return Tuple<First, decltype(b.b)>(f.a, b.b);
 }*/
 
 template <class A, class B>
 struct RefPair : Moveable<RefPair<A,B>> {
-	A& first;
-	B& second;
+	A& a;
+	B& b;
 
-	RefPair(A& a, B& b) : first(a), second(b) {}
-	RefPair(const RefPair& r) : first(r.first), second(r.second) {}
+	RefPair(A& a, B& b) : a(a), b(b) {}
+	RefPair(const RefPair& r) : a(r.a), b(r.b) {}
 	
 	RefPair* operator->(){return this;} // hack to allow returning object from Iterator
 };

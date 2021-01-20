@@ -142,7 +142,7 @@ public:
 		v.SetCount(size+1);
 		v[size] = 0;
 		size_t read_size = fread(v.Begin(), 1, size, s);
-		return v.Get();
+		return v.GetData();
 	}
 
 	int Get(void* mem, int size) override {
@@ -371,34 +371,6 @@ void StoreToFile(T& o, String path) {
 
 
 
-
-
-
-class AudioFrame {
-	
-	
-public:
-	virtual ~AudioFrame() {}
-	
-};
-
-class VideoFrame {
-	
-	
-public:
-	virtual ~VideoFrame() {}
-	
-};
-
-class MediaStream {
-	
-	
-public:
-	
-	virtual bool Initialize(AudioFrame& a, VideoFrame& v) = 0;
-	virtual String GetLastError() const {return "unknown";}
-	
-};
 
 
 

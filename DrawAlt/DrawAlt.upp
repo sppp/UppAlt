@@ -1,0 +1,17 @@
+description "\377B157,86,255";
+
+uses
+	CoreAlt;
+
+file
+	Copying,
+	Draw.h,
+	Image.h,
+	Image.cpp,
+	iml_header.h,
+	iml_source.h,
+	SDraw.h,
+	SDraw.cpp,
+	Font.h,
+	Font.cpp;
+

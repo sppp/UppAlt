@@ -75,7 +75,6 @@ void Date::Set(int64 d) {
 		leap = 0;
 	}
 	int i;
-	const int* s_month = DaysInMonth();
 	for(i = 0; i < 12; i++) {
 		int q = s_month[i] + (i == 1) * leap;
 		if(q > d) break;
@@ -461,8 +460,8 @@ void TimeStop::Reset() {
 	start = high_resolution_clock::now();
 }
 
-int TimeStop::Elapsed() const {
-	return (int)(Seconds() * 1000);
+double TimeStop::Elapsed() const {
+	return Seconds() * 1000.0;
 }
 
 double TimeStop::Seconds() const {
@@ -471,8 +470,8 @@ double TimeStop::Seconds() const {
 	return time_span.count();
 }
 
-int TimeStop::ResetElapsed() {
-	return (int)(ResetSeconds() * 1000);
+double TimeStop::ResetElapsed() {
+	return ResetSeconds() * 1000.0;
 }
 
 double TimeStop::ResetSeconds() {

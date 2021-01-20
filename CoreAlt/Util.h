@@ -239,6 +239,18 @@ template <class T> struct StdGreater {bool operator()(const T& a, const T& b) co
 inline void* MemoryAlloc(size_t size) {return malloc(size);}
 inline void MemoryFree(void* ptr) {free(ptr);}
 
+
+
+
+
+
+
+String MD5String(String s);
+String BZ2Compress(String s, int level=9, bool allow_empty=false);
+String BZ2Decompress(String s, bool allow_fail=false);
+String HexEncode(String s);
+
+
 NAMESPACE_UPP_END
 
 #endif

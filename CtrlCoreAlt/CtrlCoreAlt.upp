@@ -1,0 +1,11 @@
+description "\377B0,0,255";
+
+uses
+	Sppp;
+
+file
+	Copying,
+	CtrlCore.h,
+	Ctrl.h,
+	Ctrl.cpp;
+

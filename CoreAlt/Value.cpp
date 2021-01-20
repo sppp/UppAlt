@@ -96,7 +96,7 @@ Value* Value::GetMapSub(String key, Value* def) {
 		ValueMap& map = IsMap() ? Get<ValueMap>() : Get<ValueArrayMapComb>().map;
 		int i = map.Find(key);
 		if (i >= 0)
-			return &map.At(i);
+			return &map.GetPos(i);
 		else
 			return NULL;
 	}
@@ -122,7 +122,7 @@ Value* Value::GetAddMapSub(String key, Value* def) {
 		ValueMap& map = IsMap() ? Get<ValueMap>() : Get<ValueArrayMapComb>().map;
 		int i = map.Find(key);
 		if (i >= 0)
-			return &map.At(i);
+			return &map.GetPos(i);
 		else if (def)
 			return &map.Add(key, *def);
 		else
@@ -146,8 +146,8 @@ void ValueArray::DeepCopyArrayMap(ValueArray& arr) {
 	Clear();
 	SetCount(arr.GetCount());
 	for(int i = 0; i < GetCount(); i++) {
-		Value& from = arr.At(i);
-		Value& dst = At(i);
+		Value& from = arr.Get(i);
+		Value& dst = Get(i);
 		dst.DeepCopyArrayMap(from);
 	}
 }
@@ -159,7 +159,7 @@ void ValueMap::DeepCopyArrayMap(ValueMap& map) {
 	Clear();
 	for(int i = 0; i < map.GetCount(); i++) {
 		String key = map.GetKey(i);
-		Value& from = map.At(i);
+		Value& from = map.GetPos(i);
 		Value& dst = Add(key);
 		dst.DeepCopyArrayMap(from);
 	}
@@ -172,13 +172,13 @@ void ValueArrayMapComb::DeepCopyArrayMap(ValueArrayMapComb& am) {
 	Clear();
 	arr.SetCount(am.arr.GetCount());
 	for(int i = 0; i < arr.GetCount(); i++) {
-		Value& from = am.arr.At(i);
-		Value& dst = arr.At(i);
+		Value& from = am.arr.Get(i);
+		Value& dst = arr.Get(i);
 		dst.DeepCopyArrayMap(from);
 	}
 	for(int i = 0; i < am.map.GetCount(); i++) {
 		String key = am.map.GetKey(i);
-		Value& from = am.map.At(i);
+		Value& from = am.map.GetPos(i);
 		Value& dst = map.Add(key);
 		dst.DeepCopyArrayMap(from);
 	}

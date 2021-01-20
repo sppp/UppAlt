@@ -231,6 +231,7 @@ public:
 
 
 
+template <class A0, class A1> using Event = Callback2<A0, A1>;
 
 
 

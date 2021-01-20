@@ -1,0 +1,5 @@
+This package is made without looking to the U++ implementation.
+Some common headers with U++ may have been used for compatibility.
+
+Copyright (C) 2021, Seppo Pakonen
+License: BSD-3

@@ -1,4 +1,4 @@
-description "U++ compatible Non-GUI code. Streams, NTL containers, concrete types, Value, XML, C parsing etc...\377B128,81,0";
+description "U++ compatible Non-GUI code. Streams, NTL containers, concrete types, Value, XML, C parsing etc...\377B194,0,0";
 
 options(BUILDER_OPTION) NOWARNINGS;
 
@@ -6,9 +6,11 @@ library(WIN32) shlwapi;
 
 library(WIN32) Ws2_32;
 
-library(POSIX) pthread;
+library(POSIX) "pthread crypto bz2";
 
 file
+	Copying,
+	TODO.txt,
 	Core.h options(BUILDER_OPTION) PCH,
 	Core.cpp,
 	Defs.h,
@@ -19,10 +21,14 @@ file
 	String_.h,
 	StringInline.inl highlight cpp,
 	Tuple.h,
+	Container.h,
+	Container.cpp,
+	Shared.h,
 	Vector.h,
 	Vector.cpp,
 	Stream.h,
 	Stream.cpp,
+	Math.h,
 	Util.h,
 	Util.cpp,
 	Chrono.h,

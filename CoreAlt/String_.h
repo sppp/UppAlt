@@ -64,49 +64,49 @@ template <class T>
 class String0 {
 	T* data = NULL;
 	AtomicInt refs;
-	int reserved = 0;
+	int alloc = 0;
 
 public:
-	String0(T* str, int reserved) : data(str), refs(1), reserved(reserved) {}
+	String0(T* str, int alloc) : data(str), refs(1), alloc(alloc) {}
 	String0(String0&& s) = delete;
 	~String0() {Clear();}
 
-	void Clear() {if (data) {free(data); data = 0; refs = 0; reserved = 0;}}
+	void Clear() {if (data) {free(data); data = 0; refs = 0; alloc = 0;}}
 	
 	void IncreaseReserved() {
-		uint64 new_reserved = 1;
-		while (new_reserved <= reserved)
-			new_reserved <<= 1;
-		if (new_reserved >= INT_MAX)
-			new_reserved = INT_MAX;
-		Reserve((int)new_reserved);
+		uint64 new_alloc = 1;
+		while (new_alloc <= alloc)
+			new_alloc <<= 1;
+		if (new_alloc >= INT_MAX)
+			new_alloc = INT_MAX;
+		Reserve((int)new_alloc);
 	}
-	void IncreaseReserved(int min_reserved) {
-		uint64 new_reserved = 1;
-		while (new_reserved <= min_reserved)
-			new_reserved <<= 1;
-		if (new_reserved >= INT_MAX)
-			new_reserved = INT_MAX;
-		Reserve((int)new_reserved);
+	void IncreaseReserved(int min_alloc) {
+		uint64 new_alloc = 1;
+		while (new_alloc <= min_alloc)
+			new_alloc <<= 1;
+		if (new_alloc >= INT_MAX)
+			new_alloc = INT_MAX;
+		Reserve((int)new_alloc);
 	}
-	void Reserve(int new_reserved) {
-		if (new_reserved <= reserved)
+	void Reserve(int new_alloc) {
+		if (new_alloc <= alloc)
 			return;
-		T* new_data = (T*)malloc(new_reserved * sizeof(T));
+		T* new_data = (T*)malloc(new_alloc * sizeof(T));
 		if (data) {
-			if (reserved > 0)
-				MemoryCopy(new_data, data, sizeof(T) * reserved);
+			if (alloc > 0)
+				MemoryCopy(new_data, data, sizeof(T) * alloc);
 			free(data);
 		}
 		data = new_data;
-		reserved = new_reserved;
+		alloc = new_alloc;
 	}
 
 	const T* Get() const { return data; }
 	T* Begin() { return data; }
 	operator const T* () const { return data; }
 
-	int GetReserved() const { return reserved; }
+	int GetAlloc() const { return alloc; }
 	int GetRefs() const { return refs; }
 	void Inc() { refs++; }
 	void Dec() { refs--; if (refs <= 0) delete this; }
@@ -204,7 +204,7 @@ public:
 			BIG = new String0T(buf, count);
 			is_big = true;
 		}
-		ASSERT(c[len-1] == 0);
+		//ASSERT(c[len-1] == 0);
 		return *this;
 	}
 	void* GetWritableData(int len) {
@@ -267,7 +267,7 @@ public:
 		else {
 			if (BIG->GetRefs() == 1) {
 				int new_count = count + 1 + 1;
-				if (new_count > BIG->GetReserved())
+				if (new_count > BIG->GetAlloc())
 					BIG->IncreaseReserved();
 				T* c = BIG->Begin();
 				c[count] = i;
@@ -294,19 +294,19 @@ public:
 				count += str_count;
 			}
 			else {
-				int reserved = count + str_count + 1;
-				T* buf = (T*)malloc(sizeof(T) * (reserved));
+				int alloc = count + str_count + 1;
+				T* buf = (T*)malloc(sizeof(T) * (alloc));
 				MemoryCopy(buf, this->buf, sizeof(T) * count);
 				MemoryCopy(&buf[count], str, sizeof(T) * (str_count + 1));
 				count += str_count;
-				BIG = new String0T(buf, reserved);
+				BIG = new String0T(buf, alloc);
 				is_big = true;
 			}
 		}
 		else {
 			if (BIG->GetRefs() == 1) {
 				int new_count = count + str_count + 1;
-				if (new_count > BIG->GetReserved())
+				if (new_count > BIG->GetAlloc())
 					BIG->IncreaseReserved(new_count);
 				T* c = BIG->Begin();
 				MemoryCopy(c + count, str, sizeof(T) * str_count);
@@ -314,14 +314,14 @@ public:
 				c[count] = 0;
 			}
 			else {
-				int reserved = count + str_count + 1;
-				T* buf = (T*)malloc(sizeof(T) * (reserved));
+				int alloc = count + str_count + 1;
+				T* buf = (T*)malloc(sizeof(T) * (alloc));
 				MemoryCopy(buf, BIG->Get(), sizeof(T) * count);
 				MemoryCopy(&buf[count], str, sizeof(T) * (str_count + 1));
 				count += str_count;
 				buf[count] = 0;
 				BIG->Dec();
-				BIG = new String0T(buf, reserved);
+				BIG = new String0T(buf, alloc);
 			}
 		}
 		return *this;
@@ -340,8 +340,8 @@ public:
 	void Replace(int i, int len, const StringT& value) {
 		int new_len = this->count - len + value.GetCount();
 		const T* begin = Begin();
-		int reserved = new_len + 1;
-		T* buf = (T*)malloc(sizeof(T) * (reserved));
+		int alloc = new_len + 1;
+		T* buf = (T*)malloc(sizeof(T) * (alloc));
 		int cursor = 0;
 		if (i > 0) {
 			MemoryCopy(buf, begin, sizeof(T) * i);
@@ -362,7 +362,7 @@ public:
 		Clear();
 		this->is_big = true;
 		this->count = new_len;
-		BIG = new String0T(buf, reserved);
+		BIG = new String0T(buf, alloc);
 		ASSERT(cursor == new_len+1);
 	}
 
@@ -495,6 +495,7 @@ public:
 	const T* Begin() const { return is_big ? BIG->Get() : buf; }
 	const T* End() const { return Begin() + GetCount(); }
 	operator const T*() const {return Begin();}
+	const T* operator~() const {return Begin();}
 	
 	bool operator==(const StringT& s) const { if (s.GetCount() != GetCount()) return false; return Compare(s.Begin(), Begin()) == 0; }
 	bool operator!=(const StringT& s) const { return !(*this == s); }
@@ -503,8 +504,8 @@ public:
 		if (len != GetCount()) return false; return Compare(s, Begin(), len) == 0;
 	}
 	
-	T operator[] (int i) const {return At(i);}
-	T At(int i) const { ASSERT(i >= 0 && i < count); return *(Begin() + i); }
+	T operator[] (int i) const {return Get(i);}
+	T Get(int i) const { ASSERT(i >= 0 && i < count); return *(Begin() + i); }
 
 	StringT& operator += (const StringT& s) { Cat(s); return *this; }
 	StringT& operator << (const StringT& s) { Cat(s); return *this; }
@@ -547,6 +548,7 @@ public:
 	}
 	
 	void Reserve(int i) {}
+	
 	
 	#include "StringInline.inl"
 };

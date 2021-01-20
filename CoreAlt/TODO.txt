@@ -1,0 +1,2 @@
+
+ - Use in Vector: std::is_trivially_destructible<T>::value, Construct, DeepCopyConstructFill

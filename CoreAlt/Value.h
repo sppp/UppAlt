@@ -143,6 +143,8 @@ public:
 	int64 ToInt() const {if (obj) return obj->ToInt(); return 0;}
 };
 
+inline bool IsValueMap(const Value& v) {return v.IsMap();}
+
 template <class T> T* Value::Try() const {
 	if (obj && obj->GetType() == ValueTypeNo<T>(0))
 		return (T*)obj->Get();
@@ -178,9 +180,9 @@ public:
 	Value& Insert(int i, const Value& v) {return values.Insert(i, v);}
 	int GetCount() const {return values.GetCount();}
 	Value& operator[](int i) {return values[i];}
-	Value& At(int i) {return values[i];}
+	Value& Get(int i) {return values[i];}
 	const Value& operator[](int i) const {return values[i];}
-	const Value& At(int i) const {return values[i];}
+	const Value& Get(int i) const {return values[i];}
 	bool IsEmpty() const {return values.IsEmpty();}
 	void SetCount(int i) {values.SetCount(i);}
 	void DeepCopyArrayMap(ValueArray& arr);
@@ -209,18 +211,18 @@ public:
 	Value& Add(String key) {keys.Add(key); return values.Add();}
 	Value& GetAdd(String key) {int i = Find(key); if (i >= 0) return values[i]; return Add(key);}
 	Value& GetAdd(String key, const Value& def) {int i = Find(key); if (i >= 0) return values[i]; return Add(key, def);}
-	Value TryGet(String key, Value def=Value()) {int i = Find(key); if (i >= 0) return At(i); else return def;}
-	Value* TryFind(String key) {int i = Find(key); if (i >= 0) return &At(i); return NULL;}
+	Value TryGet(String key, Value def=Value()) {int i = Find(key); if (i >= 0) return GetPos(i); else return def;}
+	Value* TryFind(String key) {int i = Find(key); if (i >= 0) return &GetPos(i); return NULL;}
 	int Find(String key) const {for(int i = 0; i < keys.GetCount(); i++) if (keys[i] == key) return i; return -1;}
 	Value& Get(String key) {int i = Find(key); if (i == -1) throw Exc("Unexpected key"); return values[i];}
-	int GetPos(Value* v) const {for(int i = 0; i < values.GetCount(); i++) if (&values[i] == v) return i; return -1;}
+	int GetIterPos(Value* v) const {for(int i = 0; i < values.GetCount(); i++) if (&values[i] == v) return i; return -1;}
 	
 	void Clear() {keys.Clear(); values.Clear();}
 	int GetCount() const {return values.GetCount();}
 	Value& operator[](int i) {return values[i];}
-	Value& At(int i) {return values[i];}
+	Value& GetPos(int i) {return values[i];}
 	const Value& operator[](int i) const {return values[i];}
-	const Value& At(int i) const {return values[i];}
+	const Value& GetPos(int i) const {return values[i];}
 	String GetKey(int i) const {return keys[i];}
 	void DeepCopyArrayMap(ValueMap& map);
 	

@@ -13,19 +13,6 @@ struct Data_S_ : Moveable< Data_S_<size> > {
 
 
 template <class T>
-class Pick {
-	T* var = NULL;
-public:
-	Pick(T& var) : var(&var) {}
-	Pick(Pick&& p) : var(p.var) {p.var = NULL;}
-	Pick(const Pick& p) : var(p.var) {}
-	T& Get() const {return *var;}
-};
-
-template <class T>
-Pick<T> pick(T& o) {return Pick<T>(o);}
-
-template <class T>
 void Swap(T& a, T& b) {
 	uint8 tmp[sizeof(T)];
 	MemoryCopy(tmp, &a, sizeof(T));
@@ -134,20 +121,20 @@ public:
 template <class K>
 class Vector : Moveable<Vector<K>> {
 	K* data = NULL;
-	int reserved = 0;
+	int alloc = 0;
 	int count = 0;
 
 
 	void IncreaseReserved() {
-		uint64 new_reserved = 1;
-		while (new_reserved <= reserved)
-			new_reserved <<= 1;
-		if (new_reserved >= INT_MAX)
-			new_reserved = INT_MAX;
-		Reserve((int)new_reserved);
+		uint64 new_alloc = 1;
+		while (new_alloc <= alloc)
+			new_alloc <<= 1;
+		if (new_alloc >= INT_MAX)
+			new_alloc = INT_MAX;
+		Reserve((int)new_alloc);
 	}
 	
-	void Pick0(Vector& v) { data = v.data; v.data = 0; reserved = v.reserved; v.reserved = 0; count = v.count; v.count = 0; }
+	void Pick0(Vector& v) { data = v.data; v.data = 0; alloc = v.alloc; v.alloc = 0; count = v.count; v.count = 0; }
 	
 public:
 	template <class P, int I>
@@ -165,6 +152,9 @@ public:
 		P* Get() const {return kit;}
 		operator P*() const {return kit;}
 		P& operator*() const {return *kit;}
+		bool operator==(P* ptr) const {return ptr == kit;}
+		bool operator!=(P* ptr) const {return ptr != kit;}
+		bool operator==(const Iterator0& it) const {return it.kit == kit;}
 		bool operator!=(const Iterator0& it) const {return it.kit != kit;}
 		P& operator()() const {return *kit;}
 	};
@@ -183,7 +173,7 @@ public:
 	}
 	Vector() {}
 	Vector(Vector&& v) {Pick0(v);}
-	Vector(const Pick<Vector>& pick) {Vector& v = pick.Get(); Swap(data, v.data); Swap(reserved, v.reserved); Swap(count, v.count);}
+	Vector(const Pick<Vector>& pick) {Vector& v = pick.Get(); Swap(data, v.data); Swap(alloc, v.alloc); Swap(count, v.count);}
 	Vector(const Vector& v) {*this <<= v;}
 	Vector(int i) {SetCount(i);}
 	~Vector() {
@@ -193,7 +183,7 @@ public:
 	}
 	
 	void Serialize(Stream& s);
-	void operator=(const Pick<Vector>& pick) {Clear(); Vector& v = pick.Get(); Swap(data, v.data); Swap(reserved, v.reserved); Swap(count, v.count);}
+	void operator=(const Pick<Vector>& pick) {Clear(); Vector& v = pick.Get(); Swap(data, v.data); Swap(alloc, v.alloc); Swap(count, v.count);}
 	void operator=(Vector&& v) {Pick0(v);}
 	
 	
@@ -213,25 +203,25 @@ public:
 	RIterator rend() {return REnd();}
 	const RIterator rbegin() const {return RBegin();}
 	const RIterator rend() const {return REnd();}
-	K* Get() const {return data;}
+	K* GetData() const {return data;}
 	
 	K& Add() {
-		if (count + 1 > reserved) IncreaseReserved();
-		if (count >= reserved)
+		if (count + 1 > alloc) IncreaseReserved();
+		if (count >= alloc)
 			throw MemoryLimitExc("Vector maximum size exceeded");
 		new (&data[count]) K();
 		return data[count++];
 	}
 	K& Add(const K& v) {
-		if (count + 1 > reserved) IncreaseReserved();
-		if (count >= reserved)
+		if (count + 1 > alloc) IncreaseReserved();
+		if (count >= alloc)
 			throw MemoryLimitExc("Vector maximum size exceeded");
 		new (&data[count]) K(v);
 		return data[count++];
 	}
 	K& AddPick(const Pick<K>& v) {
-		if (count + 1 > reserved) IncreaseReserved();
-		if (count >= reserved)
+		if (count + 1 > alloc) IncreaseReserved();
+		if (count >= alloc)
 			throw MemoryLimitExc("Vector maximum size exceeded");
 		new (&data[count]) K(v);
 		return data[count++];
@@ -241,7 +231,7 @@ public:
 	void SetCount(int new_count) {
 		ASSERT(new_count >= 0);
 		if (new_count < 0) return;
-		if (new_count > reserved) Reserve(new_count);
+		if (new_count > alloc) Reserve(new_count);
 		if (new_count == count) return;
 		if (new_count > count) {
 			for (int i = count; i < new_count; i++)
@@ -256,7 +246,7 @@ public:
 	void SetCount(int new_count, const K& value) {
 		ASSERT(new_count >= 0);
 		if (new_count < 0) return;
-		if (new_count > reserved) Reserve(new_count);
+		if (new_count > alloc) Reserve(new_count);
 		if (new_count == count) return;
 		if (new_count > count) {
 			for (int i = count; i < new_count; i++)
@@ -283,21 +273,21 @@ public:
 			new (&data[i]) K(a[j]);
 		count = new_count;
 	}
-	void IncreaseReserve(int more_reserved) {Reserve(GetCount() + more_reserved);}
-	void Reserve(int new_reserved) {
-		if (new_reserved <= reserved || new_reserved <= 0)
+	void IncreaseReserve(int more_alloc) {Reserve(GetCount() + more_alloc);}
+	void Reserve(int new_alloc) {
+		if (new_alloc <= alloc || new_alloc <= 0)
 			return;
-		K* new_data = (K*)malloc(new_reserved * sizeof(K));
+		K* new_data = (K*)malloc(new_alloc * sizeof(K));
 		if (data) {
 			if (count > 0)
 				MemoryCopy((void*)new_data, (void*)data, sizeof(K) * count);
 			free(data);
 		}
 		data = new_data;
-		reserved = new_reserved;
+		alloc = new_alloc;
 	}
 	int GetCount() const { return count; }
-	int GetReserved() const { return reserved; }
+	int GetAlloc() const { return alloc; }
 	bool IsEmpty() const { return GetCount() == 0; }
 
 	K& operator[](int i) {
@@ -365,8 +355,8 @@ public:
 		count = npos;
 	}
 	K& Insert(int i) {
-		if (count + 1 > reserved) IncreaseReserved();
-		if (count >= reserved)
+		if (count + 1 > alloc) IncreaseReserved();
+		if (count >= alloc)
 			throw MemoryLimitExc("Vector maximum size exceeded");
 		int tail = this->count - i;
 		if (tail > 0)
@@ -376,8 +366,8 @@ public:
 		return data[i];
 	}
 	K& Insert(int i, const K& key) {
-		if (count + 1 > reserved) IncreaseReserved();
-		if (count >= reserved)
+		if (count + 1 > alloc) IncreaseReserved();
+		if (count >= alloc)
 			throw MemoryLimitExc("Vector maximum size exceeded");
 		int tail = this->count - i;
 		if (tail > 0)
@@ -404,7 +394,7 @@ public:
 	}
 
 	void Clear() {
-		if (!reserved) return;
+		if (!alloc) return;
 		K* it = data;
 		K* end = data + count;
 		while (it != end)
@@ -412,7 +402,7 @@ public:
 		count = 0;
 		free(data);
 		data = NULL;
-		reserved = 0;
+		alloc = 0;
 	}
 };
 
@@ -453,6 +443,9 @@ public:
 		K* Get() const {return *kit.Get();}
 		operator K*() const {return Get();}
 		K& operator*() const {return *Get();}
+		bool operator==(K* ptr) const {return *kit.kit == ptr;}
+		bool operator!=(K* ptr) const {return *kit.kit != ptr;}
+		bool operator==(const Iterator0& it) const {return it.kit == kit;}
 		bool operator!=(const Iterator0& it) const {return it.kit != kit;}
 		K& operator()() const {return *Get();}
 	};
@@ -509,20 +502,20 @@ public:
 	bool IsEmpty() const { return GetCount() == 0; }
 	K* Detach(int i) {K* o = l[i]; l.Remove(i); return o;}
 
-	K& operator[](int i) {
+	K& Get(int i) {
 		ASSERT(i >= 0 && i < l.GetCount());
-		K** it = l.Get();
-		it = it + i;
-		return **it;
+		return **(l.GetData() + i);
 	}
-	const K& operator[](int i) const {
+	const K& Get(int i) const {
 		ASSERT(i >= 0 && i < l.GetCount());
-		return **(l.Get() + i);
+		return **(l.GetData() + i);
 	}
+	K& operator[](int i) {return Get(i);}
+	const K& operator[](int i) const {return Get(i);}
 
 	void Remove(int i) {
 		ASSERT(i >= 0 && i < l.GetCount());
-		delete *(l.Get() + i);
+		delete *(l.GetData() + i);
 		l.Remove(i);
 	}
 	void Remove(const Vector<int>& sorted_list) {Remove(sorted_list.Begin(), sorted_list.GetCount());}
@@ -530,14 +523,14 @@ public:
 		if(!n) return;
 		const int* it  = sorted_list;
 		const int* end = sorted_list + n;
-		K** vector = l.Get();
+		K** vector = l.GetData();
 		while (it != end)
 			(*(vector + *it++))->~K();
 		l.Remove(sorted_list, n);
 	}
 	void RemoveLast() {ASSERT(GetCount()); Remove(GetCount()-1);}
 	void Clear() {
-		K** ptr = l.Get();
+		K** ptr = l.GetData();
 		K** end = ptr + l.GetCount();
 		while (ptr != end)
 			delete *(ptr++);
@@ -546,7 +539,7 @@ public:
 
 	K& Top() {
 		ASSERT(GetCount() > 0);
-		return **(l.Get() + l.GetCount() - 1);
+		return **(l.GetData() + l.GetCount() - 1);
 	}
 	void operator <<=(const Array& a) {
 		Clear();
@@ -575,6 +568,7 @@ public:
 		void operator+=(int i) {kit += i;}
 		K* operator->()const  {return kit;}
 		K* Get() const {return kit.Get();}
+		bool operator==(const Iterator& it) const {return kit == it.kit;}
 		bool operator!=(const Iterator& it) const {return kit != it.kit;}
 		K& operator*() const {return *Get();}
 		operator K*() const {return Get();}
@@ -627,8 +621,8 @@ public:
 	int FindAdd(const K& key) {int i = Find(key); if (i >= 0) return i; i = GetCount(); Add(key); return i;}
 
 	int FindHash(uint32 hash) const {
-		uint32* begin = hashes.Get();
-		uint32* end = hashes.Get() + hashes.GetCount();
+		uint32* begin = hashes.GetData();
+		uint32* end = hashes.GetData() + hashes.GetCount();
 		uint32* it = begin;
 		while (it != end) {
 			if (*it == hash)
@@ -655,12 +649,15 @@ class Map : Moveable<Map<K,V,Array>> {
 	Array<V> values;
 
 public:
+	typedef typename Index<K>::Iterator KeyIterator;
+	typedef typename Array<V>::Iterator ValueIterator;
+	
 	struct Iterator {
 		typedef RefPair<K, V> Ret;
-		struct Index<K>::Iterator kit;
-		struct Array<V>::Iterator vit;
+		typename Index<K>::Iterator kit;
+		typename Array<V>::Iterator vit;
 		Iterator() {}
-		Iterator(struct Index<K>::Iterator kit, struct Array<V>::Iterator vit) : kit(kit), vit(vit) {}
+		Iterator(typename Index<K>::Iterator kit, typename Array<V>::Iterator vit) : kit(kit), vit(vit) {}
 		Iterator(const Iterator& it) {*this = it;}
 		void operator=(const Iterator& it) {kit = it.kit; vit = it.vit;}
 		void operator++() {kit++; vit++;}
@@ -670,8 +667,10 @@ public:
 		Ret operator->() {return Get();}
 		Ret Get() const {return Ret(*kit.Get(), *vit.Get());}
 		V& GetValue() const {return Get().second;}
+		bool operator==(V* ptr) const {return vit == ptr;}
+		bool operator!=(V* ptr) const {return vit != ptr;}
+		bool operator==(const Iterator& it) const {return vit == it.vit;}
 		bool operator!=(const Iterator& it) const {return vit != it.vit;}
-		bool operator==(const Iterator& it) const {return !(vit != it.vit);}
 		Ret operator()() {return Ret(*kit.Get(), *vit.Get());}
 		Ret operator*() const {return Ret(*kit.Get(), *vit.Get());}
 	};
@@ -727,29 +726,31 @@ public:
 	
 	const K& GetKey(int i) const { return keys[i]; }
 
-	const V& At(int i) const {
+	const V& GetPos(int i) const {
 		ASSERT(i >= 0 && i < values.GetCount());
 		return values[i];
 	}
 
-	V& At(int i) {
+	V& GetPos(int i) {
 		ASSERT(i >= 0 && i < values.GetCount());
 		return values[i];
 	}
 	
-	const V& operator[](int i) const {return At(i);}
-	V& operator[](int i) {return At(i);}
+	const V& operator[](int i) const {return GetPos(i);}
+	V& operator[](int i) {return GetPos(i);}
 	
 	V& Top() { ASSERT(GetCount() > 0); return values.Top(); }
 
 	int Find(const K& key) const { return keys.Find(key); }
 	Iterator FindIterator(const K& key) const { Iterator it = Begin(); int pos = Find(key); it += pos == -1 ? GetCount() : pos; return it;}
+	V* FindPtr(const K& key) {int pos = Find(key); if (pos < 0) return 0; return &values.Get(pos);}
+	const V* FindPtr(const K& key) const {int pos = Find(key); if (pos < 0) return 0; return &values.Get(pos);}
 	V& Get(const K& key) { return values[Find(key)]; }
 	V  Get(const K& key, V value) {int i = Find(key); if (i < 0) return value; return values[i]; }
 	int GetCount() const { return keys.GetCount(); }
 	bool IsEmpty() const { return GetCount() == 0; }
 
-	int GetPos(const Iterator& it) {
+	int GetIterPos(const Iterator& it) {
 		K* begin = keys.Get();
 		K* cur = &it.Get().first;
 		int pos = cur - begin;
@@ -758,7 +759,7 @@ public:
 	}
 	void RemoveKey(const K& key) {int i = Find(key); if (i >= 0) Remove(i);}
 	void Remove(int i) { ASSERT(i >= 0 && i < keys.GetCount()); keys.Remove(i); values.Remove(i); }
-	void Remove(const Iterator& it) {Remove(GetPos(it));}
+	void Remove(const Iterator& it) {Remove(GetIterPos(it));}
 	void Clear() {
 		keys.Clear();
 		values.Clear();
@@ -773,6 +774,10 @@ public:
 	const Iterator begin() const {return Begin();}
 	const Iterator end() const {return End();}
 	
+	KeyIterator KeyBegin() {return keys.Begin();}
+	KeyIterator KeyEnd() {return keys.End();}
+	const KeyIterator KeyBegin() const {return keys.Begin();}
+	const KeyIterator KeyEnd() const {return keys.End();}
 	
 	void operator <<=(const Map& a) {
 		keys <<= a.keys;
@@ -913,168 +918,6 @@ public:
 
 
 
-struct WeakBase {
-	virtual void SetDeleted() = 0;
-};
-
-template <class T> class Weak;
-
-struct RefBase {
-	void* obj = NULL;
-	Vector<WeakBase*> weaks;
-	AtomicInt refs;
-	RefBase() {refs = 1;}
-	virtual ~RefBase() {}
-	void Inc() {refs++;}
-	void Dec() {
-		refs--;
-		if (refs <= 0) {
-			for(int i = 0; i < weaks.GetCount(); i++)weaks[i]->SetDeleted();
-			delete this;
-		}
-	}
-	void IncWeak(WeakBase* w) {weaks.Add(w);}
-	void DecWeak(WeakBase* w) {for(int i = 0; i < weaks.GetCount(); i++) if (weaks[i] == w) {weaks.Remove(i--);}}
-};
-
-template <class T>
-struct RefTemplate : public RefBase {
-	~RefTemplate() {if (obj) delete ((T*)obj); obj = NULL;}
-};
-
-template <class T>
-class Shared : Moveable<Shared<T>> {
-	
-protected:
-	friend class Weak<T>;
-	RefBase* r = NULL;
-	T* o = NULL;
-
-public:
-	Shared() {}
-	Shared(Shared&& s) {r = s.r; s.r = NULL; o = s.o; s.o = NULL;}
-	Shared(const Shared& o) {*this = o;}
-	Shared(const Pick<Shared<T>>& pick) {Swap(pick.Get(), *this);}
-	~Shared() { Clear(); }
-	
-	void Create() { Clear(); r = new RefTemplate<T>(); o = new T(); r->obj = o;}
-	template<class K> void CreateAbstract() { Clear(); r = new RefTemplate<T>(); o = new K(); r->obj = o;}
-	void Clear() { if (r) { r->Dec(); r = NULL; o = NULL;} }
-	void operator=(const Shared<T>& s) {if (r == s.r) return; SetPtr(s.o, s.r);}
-	bool IsEmpty() const { return r == NULL; }
-	T* operator->() {if (r) return o; return NULL;}
-	T* operator->() const {if (r) return o; return NULL;}
-	T* Get() const {if (r) return o; return NULL;}
-	operator bool() const {return !IsEmpty();}
-	T& operator*() const {return *Get();}
-	bool operator==(const T* ptr) const {if (r) return o == ptr; return false;}
-	bool operator==(const Shared& s) const {if (r && s.r) return o == s.o; return false;}
-	template <class K> Shared<K> As() {
-		static_assert(std::is_base_of<T, K>() || std::is_base_of<K, T>(), "K -> T or T -> K inheritance is required");
-		
-		if (o) {
-			K* ptr = dynamic_cast<K*>(o);
-			if (ptr) {
-				Shared<K> s;
-				s.SetPtr(ptr, r);
-				return s;
-			}
-		}
-		return Shared<K>();
-	}
-	void SetPtr(T* o, RefBase* r) {
-		Shared<T> tmp; Swap(*this, tmp); // don't unref until new ref!!!111!1
-		this->o = o;
-		this->r = r;
-		if (r) r->Inc();
-	}
-	Shared& WrapObject(T* obj) {
-		Clear();
-		if (obj) {
-			r = new RefTemplate<T>();
-			r->obj = obj;
-			o = obj;
-		}
-		return *this;
-	}
-	const RefBase* GetBase() const {return r;}
-};
-
-void TestShared();
-
-
-template <class T> inline Shared<T> MakeShared() {return Shared<T>(new T());}
-template <class T, class P> inline Shared<T> MakeSharedBase() {Shared<P> s; s.Create(); return s.template As<T>();}
-
-//template <class T, class A0, class A1, class A2> inline Shared<T> MakeShared(A0& a0, A1& a1, A2& a2) {return Shared<T>(new T(a0, a1, a2));}
-template <class T, class A0> inline Shared<T> MakeShared(A0 a0) {return Shared<T>(new T(a0));}
-template <class T, class A0, class A1> inline Shared<T> MakeShared(A0 a0, A1 a1) {return Shared<T>(new T(a0, a1));}
-template <class T, class A0, class A1, class A2> inline Shared<T> MakeShared(A0 a0, A1 a1, A2 a2) {return Shared<T>(new T(a0, a1, a2));}
-template <class T, class A0, class A1, class A2, class A3> inline Shared<T> MakeShared(A0 a0, A1 a1, A2 a2, A3 a3) {return Shared<T>(new T(a0, a1, a2, a3));}
-template <class T, class A0, class A1, class A2, class A3, class A4> inline Shared<T> MakeShared(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {return Shared<T>(new T(a0, a1, a2, a3, a4));}
-template <class T, class A0, class A1, class A2, class A3, class A4, class A5> inline Shared<T> MakeShared(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {return Shared<T>(new T(a0, a1, a2, a3, a4, a5));}
-template <class T, class A0, class A1, class A2, class A3, class A4, class A5, class A6> inline Shared<T> MakeShared(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) {return Shared<T>(new T(a0, a1, a2, a3, a4, a5, a6));}
-
-
-
-template <class T>
-class Weak : public WeakBase {
-	struct RefBase* r = NULL;
-	T* o = NULL;
-	
-public:
-	Weak() {}
-	Weak(const Weak& w) : r(w.r), o(w.o) {if (r) r->IncWeak(this);}
-	Weak(const Shared<T>& s) : r(s.r), o(s.o) {if (r) r->IncWeak(this);}
-	~Weak() {Clear();}
-	
-	void SetDeleted() override {r = NULL;}
-	void Clear() {if (r) r->DecWeak(this); r = NULL; o = NULL;}
-	void operator=(const Shared<T>& s) { Clear(); r = s.r; o = s.o; if (r) r->IncWeak(this);}
-	void operator=(Pick<Weak<T>>& p) { Clear(); r = p.Get().r; o = p.Get().o; if (r) r->IncWeak(this);}
-	void operator=(const Weak<T>& p) { Clear(); r = p.r; o = p.o; if (r) r->IncWeak(this);}
-	bool IsEmpty() const { return r == NULL; }
-	T* operator->() {return o;}
-	T* Get() {return o;}
-	operator bool() {return !IsEmpty();}
-	Shared<T> Enter() const {Shared<T> s; s.r = r; s.o = o; if (s.r) s.r->Inc(); return s;}
-};
-
-
-template <class T>
-class EnableSharedFromThis {
-	Weak<T> weak;
-	
-public:
-	virtual ~EnableSharedFromThis() = default;
-	
-	void InitWeak(const Shared<T>& s) {ASSERT(weak.IsEmpty()); weak = s;}
-	
-	bool HasWeak() const {return !weak.IsEmpty();}
-	
-	Shared<T> GetSharedFromThis() {
-		/*if (weak.IsEmpty()) {
-			Shared<T> s(dynamic_cast<T*>(this));
-			weak = s;
-			return s;
-		}*/
-		//else {
-		ASSERT(!weak.IsEmpty());
-		return weak.Enter();
-		//}
-	}
-	
-	template <class V>
-	Shared<V> AsShared() {return GetSharedFromThis().template As<V>();}
-};
-
-template <class T, class I>
-Shared<T> StaticPointerCast(I it) {
-	
-}
-
-
-
 
 
 
@@ -1104,6 +947,8 @@ public:
 	
 	Huge();
 };
+
+
 
 NAMESPACE_UPP_END
 

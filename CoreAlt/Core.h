@@ -62,6 +62,7 @@
 #include <codecvt>
 #include <random>
 #include <memory>
+#include <complex>
 
 #include <emmintrin.h>
 
@@ -91,6 +92,8 @@ using namespace std::chrono;
 #define DLOG(x) LOG(x)
 
 
+#define NAMESPACE_UPP namespace  Upp {
+#define END_UPP_NAMESPACE }
 #define NAMESPACE_UPP_BEGIN namespace  Upp {
 #define NAMESPACE_UPP_END }
 
@@ -104,8 +107,11 @@ using namespace std::chrono;
 #include "Algo.h"
 #include "String_.h"
 #include "Tuple.h"
+#include "Container.h"
 #include "Vector.h"
+#include "Shared.h"
 #include "Stream.h"
+#include "Math.h"
 #include "Callback.h"
 #include "Util.h"
 #include "Chrono.h"

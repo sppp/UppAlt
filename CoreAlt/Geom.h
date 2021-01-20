@@ -3,8 +3,6 @@
 
 NAMESPACE_UPP_BEGIN
 
-extern const double EPSILON;
-extern const double DEG2RAD;
 
 
 template <class T>

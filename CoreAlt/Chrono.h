@@ -20,8 +20,6 @@ struct Date {
 	String ToString() const;
 	int64 ToInt() const {return Get();}
 	
-	static const int* DaysInMonth();
-	static const int* MonthDayOffset();
 	static bool IsLeapYear(int year);
 	static int GetDaysOfMonth(int m, int y);
 	
