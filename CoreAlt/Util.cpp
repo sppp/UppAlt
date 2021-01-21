@@ -643,4 +643,37 @@ String HexEncode(String s) {
 	return out;
 }
 
+
+
+
+
+
+
+bool Load(Callback1<Stream&> x, Stream& s) {
+	TODO
+}
+
+void Store(Callback1<Stream&> x, Stream& s) {
+	TODO
+}
+
+String GetGlobalConfigData(const char* name) {
+	TODO
+}
+
+void SetGlobalConfigData(const char* name, String data) {
+	TODO
+}
+
+bool LoadFromGlobal(Callback1<Stream&> x, const char *name) {
+	StringStream ss(GetGlobalConfigData(name));
+	return ss.IsEof() || Load(x, ss);
+}
+
+void StoreToGlobal(Callback1<Stream&> x, const char *name) {
+	StringStream ss;
+	Store(x, ss);
+	SetGlobalConfigData(name, ss);
+}
+
 NAMESPACE_UPP_END

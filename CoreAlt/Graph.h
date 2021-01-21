@@ -10,7 +10,10 @@ struct ColorT : Moveable<ColorT<T>> {
 	ColorT() {}
 	ColorT(const ColorT& c) {*this = c;}
 	ColorT(T r, T g, T b) : r(r), g(g), b(b) {}
+	ColorT(const Nuller&) : r(0), g(0), b(0) {}
 	template <class K> ColorT(const ColorT<K>& c) {*this = c;}
+	
+	bool operator==(const ColorT& c) {return memcmp(&c, this, sizeof(ColorT)) == 0;}
 	
 	void operator=(const ColorT& c) {
 		r = c.r;
@@ -33,6 +36,12 @@ struct ColorT : Moveable<ColorT<T>> {
 
 typedef ColorT<byte>	Color;
 typedef ColorT<float>	Colorf;
+
+enum {
+	SPCLR_DEFAULT_INK = 254,
+};
+
+Color SpecialColor(int code);
 
 
 template <class T>

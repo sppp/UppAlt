@@ -240,6 +240,7 @@ class StringStream : public Stream {
 	
 public:
 	StringStream() {}
+	StringStream(String s) {this->s.SetCount(s.GetCount()); memcpy(this->s.Begin(), s.Begin(), this->s.GetCount());}
 
 	bool IsLoading() override { return !is_storing; }
 	bool IsStoring() override { return is_storing; }
@@ -283,7 +284,10 @@ public:
 	int64 GetSize() const override {return s.GetCount();}
 
 	void Seek(int64 i) override { cursor = i; }
-	String GetResult() { return String(s.Begin(), s.GetCount()); }
+	String GetResult() const { String s; s.SetData(s.Begin(), s.GetCount()); return s;}
+	
+	operator String() const {return GetResult();}
+	
 };
 
 class MemReadStream : public Stream {

@@ -17,7 +17,7 @@ typedef enum {
 class Image : Moveable<Image> {
 	
 public:
-	struct ImageDataRef {
+	/*struct ImageDataRef {
 		ImgDataType type = IMGDATA_NULL;
 		void* obj = NULL;
 		const byte* pixels = NULL;
@@ -29,14 +29,24 @@ public:
 		void Inc() {refs++;}
 		void Dec() {refs--; if (refs <= 0) delete this;}
 		void Clear();
+	};*/
+	struct ImageDataRef {
+		SysImage img;
+		SysAccelImage accel;
+		Point hotspot;
+		int refs = 1;
+		
+		ImageDataRef() : hotspot(0,0) {}
+		ImageDataRef(RawSysImage* raw) : img(raw), hotspot(0,0) {}
+		void Inc() {refs++;}
+		void Dec() {refs--; if (refs <= 0) delete this;}
 	};
-	
 	
 	Image() {}
 	Image(const Image& img) {*this = img;}
 	Image(Image&& img) {data = img.data; img.data = NULL;}
 	Image(ImageDataRef* data) : data(data) {data->Inc();}
-	//Image(SDL_Surface* s) {if (s) {data = new ImageDataRef(); data->data = s;}}
+	Image(RawSysImage* raw) {if (raw) {data = new ImageDataRef(raw);}}
 	~Image() {Clear();}
 	void operator=(const Image& img) {Clear(); data = img.data; if (data) data->Inc();}
 	void Clear() {if (data) data->Dec(); data = NULL;}
@@ -45,15 +55,15 @@ public:
 	Point GetHotSpot() const {if (data) return data->hotspot; return Point(0,0);}
 	void CenterHotSpot() {if (data) data->hotspot = Point(GetWidth()/2, GetHeight()/2);}
 	ImageDataRef* GetData() const {return data;}
-	//GLuint GetTexture() const {if (!data) return 0; return data->texture;}
-	int GetWidth() const {if (!data) return 0; return data->width;}
-	int GetHeight() const {if (!data) return 0; return data->height;}
-	Size GetSize() const {if (!data) return Size(0,0); return Size(data->width, data->height);}
+	int GetWidth() const {if (!data) return 0; return data->img.GetWidth();}
+	int GetHeight() const {if (!data) return 0; return data->img.GetHeight();}
+	Size GetSize() const {if (!data) return Size(0,0); return Size(data->img.GetWidth(), data->img.GetHeight());}
 	const byte* GetIter(int x, int y) const;
 	void Serialize(Stream& s) {TODO}
 	operator bool() const {return data;}
 	
-	static Image Arrow();
+	void MakeSysAccel();
+	//GLuint GetTexture() const {if (!data) return 0; return data->texture;}
 	
 	
 private:
@@ -67,7 +77,9 @@ void FreeImageData_SDL2_Surface(void* v);
 #endif
 
 
-
+struct DefaultImages {
+	static Image Arrow;
+};
 
 class ImageBuffer : Moveable<ImageBuffer> {
 	Vector<RGBA> buf;

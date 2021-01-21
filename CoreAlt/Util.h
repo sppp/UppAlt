@@ -251,6 +251,26 @@ String BZ2Decompress(String s, bool allow_fail=false);
 String HexEncode(String s);
 
 
+
+
+class NoCopy {
+private:
+	NoCopy(const NoCopy&);
+	void operator=(const NoCopy&);
+public:
+	NoCopy() {}
+};
+
+
+
+bool Load(Callback1<Stream&> x, Stream& s);
+void Store(Callback1<Stream&> x, Stream& s);
+String GetGlobalConfigData(const char* name);
+void SetGlobalConfigData(const char* name, String data);
+bool LoadFromGlobal(Callback1<Stream&> x, const char *name);
+void StoreToGlobal(Callback1<Stream&> x, const char *name);
+
+
 NAMESPACE_UPP_END
 
 #endif

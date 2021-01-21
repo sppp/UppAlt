@@ -1,11 +1,17 @@
 #ifndef _VirtualGuiAlt_VirtualGuiAlt_h_
 #define _VirtualGuiAlt_VirtualGuiAlt_h_
 
-#include <CoreAlt/CoreAlt.h>
+#include <DrawAlt/Draw.h>
 
 
 NAMESPACE_UPP
 
+
+class SystemDraw : public DrawProxy {
+public:
+	bool    CanSetSurface()                         { return false; }
+	static void Flush()                             {}
+};
 
 enum KM {
 	KM_NONE  = 0x00,
@@ -40,7 +46,7 @@ struct VirtualGui3DAlt {
 	virtual void        CommitDraw() = 0;
 };
 
-class ImageDraw : public SImageDraw { // using software renderer
+class ImageDraw : public SImageDraw {
 public:
 	ImageDraw(Size sz) : SImageDraw(sz) {}
 	ImageDraw(int cx, int cy) : SImageDraw(cx, cy) {}
@@ -60,5 +66,11 @@ public:
 
 END_UPP_NAMESPACE
 
+
+NAMESPACE_UPP
+
+
+
+END_UPP_NAMESPACE
 
 #endif

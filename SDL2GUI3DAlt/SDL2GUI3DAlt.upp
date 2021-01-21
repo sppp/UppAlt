@@ -1,6 +1,11 @@
 description "\3770,128,128";
 
+library
+	"SDL2 SDL2_ttf SDL2_image";
+
 file
 	Copying,
-	SDL2GUIAlt.h;
+	SDL2GUIAlt.h,
+	"Gui Platform" readonly separator,
+	DrawBackend.h;
 

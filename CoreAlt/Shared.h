@@ -4,6 +4,7 @@
 NAMESPACE_UPP_BEGIN
 
 
+
 struct WeakBase {
 	virtual void SetDeleted() = 0;
 };

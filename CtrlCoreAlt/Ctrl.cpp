@@ -20,23 +20,30 @@ void CtrlFrame::ReleaseCapture() {
 }
 
 CtrlFrame* CtrlFrame::GetCaptured() {
+	TODO
+	/*
 	if (!ctrl) return NULL;
-	return ctrl->GetWindows()->GetFrameCaptured();
+	return ctrl->GetWindows()->GetFrameCaptured();*/
 }
 
 CtrlFrame* CtrlFrame::GetWithMouse() {
+	TODO
+	/*
 	if (!ctrl) return NULL;
-	return ctrl->GetWindows()->GetFrameWithMouse();
+	return ctrl->GetWindows()->GetFrameWithMouse();*/
 }
 
 void CtrlFrame::SetCaptured(CtrlFrame* c) {
-	ctrl->GetWindows()->SetFrameCaptured(c);
+	TODO
+	/*
+	ctrl->GetWindows()->SetFrameCaptured(c);*/
 }
 
 void CtrlFrame::SetWithMouse(CtrlFrame* c) {
-	ctrl->GetWindows()->SetFrameWithMouse(c);
+	TODO
+	/*
+	ctrl->GetWindows()->SetFrameWithMouse(c);*/
 }
-
 
 
 
@@ -116,6 +123,8 @@ Ctrl* Ctrl::GetParent() {
 	return parent;
 }
 
+#if 0
+
 CoreWindow* Ctrl::GetWindow() {
 	Ctrl* c = this;
 	while (c) {
@@ -138,11 +147,15 @@ Windows* Ctrl::GetWindows() {
 	return NULL;
 }
 
+#endif
+
 bool Ctrl::IsShown() const {
 	return !hidden;
 }
 
 void Ctrl::SetFrameRect(const Rect& r) {
+	TODO
+	/*
 	this->frame_r = r;
 	SetPendingEffectRedraw();
 	if (parent) {
@@ -150,10 +163,12 @@ void Ctrl::SetFrameRect(const Rect& r) {
 		CoreWindow* w = GetWindow();
 		if (w)
 			w->SetPendingLayout();
-	}
+	}*/
 }
 
 void Ctrl::SetFocus() {
+	TODO
+	/*
 	CoreWindow* w = GetWindow();
 	if (w) w->DeepUnfocus();
 	
@@ -169,8 +184,9 @@ void Ctrl::SetFocus() {
 		if (c == w)
 			break;
 		c = c->GetParent();
-	}
+	}*/
 }
+
 
 void Ctrl::Show(bool b) {
 	hidden = !b;
@@ -185,10 +201,11 @@ void Ctrl::SetPendingRedrawDeep() {
 }
 
 void Ctrl::Refresh() {
-	SetPendingRedrawDeep();
+	TODO
+	/*SetPendingRedrawDeep();
 	CoreWindow* win = GetWindow();
 	if (win)
-		win->SetPendingPartialRedraw();
+		win->SetPendingPartialRedraw();*/
 }
 
 void Ctrl::PostCallback(Callback cb) {
@@ -275,7 +292,11 @@ Ctrl& Ctrl::RightPos(int i, int size) {
 	return *this;
 }
 
+
+
 bool Ctrl::Redraw(bool only_pending) {
+	TODO
+	/*
 	Size sz(GetFrameSize());
 	Rect new_content_r(sz);
 	bool did_draw = false;
@@ -345,20 +366,47 @@ bool Ctrl::Redraw(bool only_pending) {
 		pending_redraw = false;
 	}
 	
-	return did_draw;
+	return did_draw;*/
 }
 
-Ctrl* Ctrl::GetCaptured() {return GetWindows()->GetCaptured();}
-Ctrl* Ctrl::GetWithMouse() {return GetWindows()->GetWithMouse();}
-void Ctrl::SetCaptured(Ctrl* c) {GetWindows()->SetCaptured(c);}
-void Ctrl::SetWithMouse(Ctrl* c) {GetWindows()->SetWithMouse(c);}
-CtrlFrame* Ctrl::GetFrameCaptured() {return GetWindows()->GetFrameCaptured();}
-CtrlFrame* Ctrl::GetFrameWithMouse() {return GetWindows()->GetFrameWithMouse();}
-void Ctrl::SetFrameCaptured(CtrlFrame* c) {GetWindows()->SetFrameCaptured(c);}
-void Ctrl::SetFrameWithMouse(CtrlFrame* c) {GetWindows()->SetFrameWithMouse(c);}
+Ctrl* Ctrl::GetCaptured() {
+	TODO
+	//return GetWindows()->GetCaptured();
+}
+Ctrl* Ctrl::GetWithMouse() {
+	TODO
+	//return GetWindows()->GetWithMouse();
+}
+void Ctrl::SetCaptured(Ctrl* c) {
+	TODO
+	//GetWindows()->SetCaptured(c);
+}
+void Ctrl::SetWithMouse(Ctrl* c) {
+	TODO
+	//GetWindows()->SetWithMouse(c);
+}
+CtrlFrame* Ctrl::GetFrameCaptured() {
+	TODO
+	//return GetWindows()->GetFrameCaptured();
+}
+CtrlFrame* Ctrl::GetFrameWithMouse() {
+	TODO
+	//return GetWindows()->GetFrameWithMouse();
+}
+void Ctrl::SetFrameCaptured(CtrlFrame* c) {
+	TODO
+	//GetWindows()->SetFrameCaptured(c);
+}
+void Ctrl::SetFrameWithMouse(CtrlFrame* c) {
+	TODO
+	//GetWindows()->SetFrameWithMouse(c);
+}
+
+
 
 void Ctrl::DeepLayout() {
-	Rect prev_frame_r = frame_r;
+	TODO
+	/*Rect prev_frame_r = frame_r;
 	
 	const LogPos& lp = GetLogPos();
 	if ((lp.htype || lp.vtype) && parent) {
@@ -403,11 +451,12 @@ void Ctrl::DeepLayout() {
 	}
 	
 	
-	PostLayout();
+	PostLayout();*/
 }
 
 bool Ctrl::DeepKey(dword key, int count) {
-	if (HasFocus()) {
+	TODO
+	/*if (HasFocus()) {
 		return Key(key, count);
 	}
 	else {
@@ -417,11 +466,12 @@ bool Ctrl::DeepKey(dword key, int count) {
 				return c.DeepKey(key, count);
 		}
 		return false;
-	}
+	}*/
 }
 
 bool Ctrl::DeepMouseMove(const Point& pt, dword keyflags) {
-	int deep_count = 0;
+	TODO
+	/*int deep_count = 0;
 	for(int i = children.GetCount()-1; i >= 0; i--) {
 		Ctrl* c = children[i];
 		if (c->HasMouseDeep()) {
@@ -482,7 +532,8 @@ bool Ctrl::DeepMouseMove(const Point& pt, dword keyflags) {
 		return false;
 	}
 	else {
-		/*{
+		#if 0
+		{
 			Point ftl = frame_r.TopLeft();
 			Point fpt = pt - ftl;
 			Point ctl = content_r.TopLeft();
@@ -494,7 +545,8 @@ bool Ctrl::DeepMouseMove(const Point& pt, dword keyflags) {
 					LOG("");
 				}
 			}
-		}*/
+		}
+		#endif
 		if (frame_r.Contains(pt)) {
 			has_mouse_deep = true;
 			
@@ -588,11 +640,12 @@ bool Ctrl::DeepMouseMove(const Point& pt, dword keyflags) {
 			ASSERT(!has_mouse);
 		}
 	}
-	return false;
+	return false;*/
 }
 
 bool Ctrl::DeepMouse(int mouse_code, const Point& pt, dword keyflags) {
-	if (GetCaptured()) {
+	TODO
+	/*if (GetCaptured()) {
 		if (has_mouse) {
 			Point ftl = frame_r.TopLeft();
 			Point ctl = content_r.TopLeft();
@@ -779,11 +832,12 @@ bool Ctrl::DeepMouse(int mouse_code, const Point& pt, dword keyflags) {
 			return true;
 		}
 		return false;
-	}
+	}*/
 }
 
 bool Ctrl::DeepMouseWheel(const Point& pt, int zdelta, dword keyflags) {
-	if (GetCaptured()) {
+	TODO
+	/*if (GetCaptured()) {
 		if (has_mouse) {
 			ASSERT(this == GetCaptured());
 			Point ftl = frame_r.TopLeft();
@@ -862,11 +916,12 @@ bool Ctrl::DeepMouseWheel(const Point& pt, int zdelta, dword keyflags) {
 			return true;
 		}
 		return false;
-	}
+	}*/
 }
 
 void Ctrl::DeepMouseLeave() {
-	if (GetCaptured()) {
+	TODO
+	/*if (GetCaptured()) {
 		
 	}
 	else {
@@ -889,28 +944,7 @@ void Ctrl::DeepMouseLeave() {
 				c->DeepMouseLeave();
 			}
 		}
-	}
+	}*/
 }
-
-
-
-
-
-
-
-
-
-
-
-Bar& Bar::Add(String title, Callback cb) {
-	
-	throw TodoExc();
-}
-
-Bar& Bar::Separator() {
-	
-	throw TodoExc();
-}
-
 
 END_UPP_NAMESPACE

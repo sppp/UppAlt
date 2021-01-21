@@ -3,6 +3,58 @@
 
 NAMESPACE_UPP_BEGIN
 
+
+template<class T> void PteAttach(T* o, void* ptr);
+template<class T> void PteRelease(T* o, void* ptr);
+
+template <class T>
+class Ptr {
+	T* o = 0;
+	
+public:
+	Ptr() {}
+	Ptr(T* o) {Set(o);}
+	~Ptr() {Clear();}
+	
+	void Clear() {if (o) {PteRelease(o, this); o = 0;}}
+	void ForcedRelease() {o = 0;}
+	void Set(T* o) {if (this->o == o) return; Clear(); this->o = o; PteAttach(o, this);}
+	
+	Ptr& operator=(T* o) {Set(o); return *this;}
+	
+	operator T*() const {return o;}
+	
+};
+
+template <class T>
+class Pte {
+	Vector<Ptr<T>*> ptrs;
+	
+	
+	void Clear() {
+		for(auto& o : ptrs)
+			o->ForcedRelease();
+		ptrs.Clear();
+	}
+public:
+	Pte() {}
+	~Pte() {Clear();}
+	
+	void Attach(Ptr<T>* o) {ptrs.Add(o);}
+	void Release(Ptr<T>* o) {
+		for(int i = 0; i < ptrs.GetCount(); i++)
+			if (ptrs[i] == o)
+				ptrs.Remove(i--);
+	}
+	
+};
+
+template<class T> inline void PteAttach(T* o, void* ptr) {static_cast<Pte<T>&>(*o).Attach((Ptr<T>*)ptr);}
+template<class T> inline void PteRelease(T* o, void* ptr) {static_cast<Pte<T>&>(*o).Release((Ptr<T>*)ptr);}
+
+
+#if 0
+
 template <class T> class Ptr;
 
 class PteBase {
@@ -79,6 +131,7 @@ String Ptr<T>::ToString() const
 	return prec ? FormatPtr(Get()) : String("0x0");
 }
 
+#endif
 
 NAMESPACE_UPP_END
 

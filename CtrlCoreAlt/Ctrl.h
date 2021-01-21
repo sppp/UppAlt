@@ -83,9 +83,9 @@ struct LogPos {
 };
 
 class TopWindow;
-class CoreWindow;
+//class CoreWindow;
 
-class Ctrl {
+class Ctrl : public Pte<Ctrl> {
 	
 protected:
 	
@@ -138,6 +138,8 @@ protected:
 	LogPos pos;
 	Rect frame_r, content_r;
 	bool hidden = false;
+	bool want_focus = false;
+	bool ignore_mouse = false;
 	bool has_focus = false;
 	bool has_focus_deep = false;
 	bool has_mouse = false;
@@ -172,8 +174,8 @@ public:
 	void RemoveChild(Ctrl* c);
 	
 	Ctrl* GetParent();
-	CoreWindow* GetWindow();
-	Windows* GetWindows();
+//	CoreWindow* GetWindow();
+//	Windows* GetWindows();
 	int GetCount() const {return children.GetCount();}
 	Ctrl* operator[](int i) {return children[i];}
 	
@@ -188,6 +190,7 @@ public:
 	bool HasMouseDeep() const {return has_mouse_deep;}
 	bool IsPendingLayout() const {return pending_layout;}
 	const LogPos& GetLogPos() const {return pos;}
+	Size GetSize() const;
 	
 	virtual void SetFrameRect(const Rect& r);
 	void SetFrameRect(int x, int y, int w, int h) {SetFrameRect(Rect(x, y, x+w, y+h));}
@@ -197,6 +200,8 @@ public:
 	void SetPendingRedrawDeep();
 	void SetPendingEffectRedraw() {pending_fx_redraw = true;}
 	void SetFocus();
+	void WantFocus(bool b=true) {want_focus = b;}
+	void IgnoreMouse(bool b=true) {ignore_mouse = b;}
 	
 	void Show(bool b=true);
 	void Hide() {Show(false);}
@@ -218,8 +223,8 @@ public:
 	
 	virtual void Activate() {}
 	virtual void Deactivate() {}
-	virtual Image FrameMouseEvent(int event, Point p, int zdelta, dword keyflags) {return Image::Arrow();}
-	virtual Image MouseEvent(int event, Point p, int zdelta, dword keyflags) {return Image::Arrow();}
+	virtual Image FrameMouseEvent(int event, Point p, int zdelta, dword keyflags) {return DefaultImages::Arrow;}
+	virtual Image MouseEvent(int event, Point p, int zdelta, dword keyflags) {return DefaultImages::Arrow;}
 	virtual void MouseEnter(Point frame_p, dword keyflags) {if (do_debug_draw) Refresh();}
 	virtual void MouseMove(Point content_p, dword keyflags) {}
 	virtual void LeftDown(Point p, dword keyflags) {}
@@ -247,7 +252,7 @@ public:
 	virtual void MouseLeave() {if (do_debug_draw) Refresh();}
 	virtual void PadTouch(int controller, Pointf p) {}
 	virtual void PadUntouch(int controller) {}
-	virtual Image CursorImage(Point p, dword keyflags) {return Image::Arrow();}
+	virtual Image CursorImage(Point p, dword keyflags) {return DefaultImages::Arrow;}
 	virtual bool Key(dword key, int count) {return false;}
 	virtual void Paint(Draw& d) {}
 	virtual void Layout() {}
@@ -261,6 +266,7 @@ public:
 	
 	
 	
+	Ctrl& operator <<= (Callback cb) {WhenAction = cb; return *this;}
 	
 	
 	
@@ -325,16 +331,11 @@ public:
 		MIDDLETRIPLE   = MIDDLE|TRIPLE
 	};
 	
-};
-
-class Bar {
+	
+	#include GUIPLATFORM_CTRL_DECLS_INCLUDE
 	
 	
-public:
 	
-	
-	Bar& Add(String title, Callback cb);
-	Bar& Separator();
 	
 };
 
@@ -348,11 +349,11 @@ class EmptySpaceCtrl : public Ctrl {
 };
 
 
-struct Event {
+struct ScreenEvent {
 	int type = 0;
 };
 
-class Screen : public Ctrl {
+/*class Screen : public Ctrl {
 	
 	
 public:
@@ -360,10 +361,15 @@ public:
 	
 	virtual bool Init() = 0;
 	virtual void AddWindow(CoreWindow&) = 0;
-	virtual bool Poll(Event& e) = 0;
+	virtual bool Poll(ScreenEvent& e) = 0;
 	virtual void Render() = 0;
 	virtual void Shutdown() = 0;
 	virtual void ProcessCloseQueue() = 0;
+	
+};*/
+
+
+class ParentCtrl : public Ctrl {
 	
 };
 

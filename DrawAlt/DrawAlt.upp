@@ -1,11 +1,14 @@
 description "\377B157,86,255";
 
 uses
-	CoreAlt;
+	CoreAlt,
+	Sppp;
 
 file
 	Copying,
 	Draw.h,
+	DrawClasses.h,
+	DrawClasses.cpp,
 	Image.h,
 	Image.cpp,
 	iml_header.h,
@@ -13,5 +16,6 @@ file
 	SDraw.h,
 	SDraw.cpp,
 	Font.h,
-	Font.cpp;
+	Font.cpp,
+	Chameleon.h;
 

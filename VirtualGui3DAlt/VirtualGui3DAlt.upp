@@ -1,11 +1,16 @@
 description "\3770,128,128";
 
+uses
+	CoreAlt;
+
 file
 	Copying,
 	VirtualGuiAlt.h,
+	VirtualGuiAlt.cpp,
 	Local.h,
 	Keys.h,
 	After.h,
 	Ctrl.h,
-	Top.h;
+	Top.h,
+	Top.cpp;
 

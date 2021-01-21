@@ -7,7 +7,7 @@ NAMESPACE_UPP
 
 class Font {
 	struct FontRef {
-		TTF_Font *font = NULL;
+		SysFont font;
 		int refs = 1;
 		
 		String dir;
@@ -16,7 +16,8 @@ class Font {
 		int weight = 1;
 		bool italic = false;
 		
-		~FontRef() {if (font) TTF_CloseFont(font); font = NULL;}
+		FontRef() {}
+		FontRef(RawSysFont* f) : font(f) {}
 		void Inc() {refs++;}
 		void Dec() {refs--; if (refs <= 0) delete this;}
 	};
@@ -28,20 +29,25 @@ public:
 	Font() {}
 	Font(const Font& fnt) {*this = fnt;}
 	Font(Font&& fnt) {ref = fnt.ref; fnt.ref = NULL;}
-	Font(TTF_Font* f) {if (f) {ref = new FontRef(); ref->font = f;}}
+	Font(RawSysFont* f) {if (f) {ref = new FontRef(f);}}
 	Font(FontRef* r) {if (r) {ref = r;}}
 	~Font() {Clear();}
 	void operator=(const Font& fnt) {Clear(); ref = fnt.ref; if (ref) ref->Inc();}
 	void Clear() {if (ref) ref->Dec(); ref = NULL;}
 	bool IsEmpty() const {return ref == NULL;}
-	TTF_Font* GetTTF_Font() {if (!ref) return NULL; return ref->font;}
+	SysFont* GetSysFont() {if (!ref) return NULL; return &ref->font;}
 	
 	void SetScreenCloseClear();
 	
 	static FontRef* LoadFont(String dir, String name, int ptsize=16, int weight=1, bool italic=false);
 };
 
-Font StdFont(int size=15);
+
+Size GetStdFontSize();
+Font GetStdFont(int size=-1);
+void SetStdFont(Font fnt);
+
+inline Font StdFont(int size=-1) {return GetStdFont();}
 
 Size GetTextSize(String s, Font fnt);
 

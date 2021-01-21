@@ -3,6 +3,17 @@
 
 NAMESPACE_UPP
 
+DrawCommand& DrawCommandCache::Get() {
+	TODO
+}
+
+void DrawCommandCache::Return(DrawCommand* cmd) {
+	TODO
+}
+
+
+
+
 
 DrawCommand& SDraw::GetNext() {
 	DrawCommand* cmd = &GetDrawCommandCache().Get();
@@ -40,6 +51,8 @@ void SDraw::DrawLine(int x0, int y0, int x1, int y1, int line_width, RGBA c) {
 		cmd.triangles.SetCount(2);
 		cmd.clr = c;
 		
+		TODO
+		/*
 		double signed_area = GetSignedArea(p0a, p1a, p0b);
 		if (signed_area >= 0) {
 			cmd.triangles[0].Set(p0a, p1a, p0b);
@@ -48,7 +61,7 @@ void SDraw::DrawLine(int x0, int y0, int x1, int y1, int line_width, RGBA c) {
 		else {
 			cmd.triangles[0].Set(p0a, p0b, p1a);
 			cmd.triangles[1].Set(p0b, p1b, p1a);
-		}
+		}*/
 	}
 }
 
@@ -58,7 +71,7 @@ void SDraw::DrawImage(int x, int y, Image img, Byte alpha) {
 	cmd.i[0] = x;
 	cmd.i[1] = y;
 	cmd.img = img;
-	cmd.img.MakeTexture();
+	cmd.img.MakeSysAccel();
 	cmd.clr.a = alpha / 255.0;
 }
 
@@ -80,12 +93,12 @@ void SDraw::DrawText(int x, int y, String txt, Font fnt, RGBA clr) {
 	if (txt.GetCount() == 0 || fnt.IsEmpty())
 		return;
 	
-	SDL_Color c;
+	SysColor c;
 	c.r = clr.r * 255.0;
 	c.g = clr.g * 255.0;
 	c.b = clr.b * 255.0;
 	c.a = 255;
-	SDL_Surface* surf = TTF_RenderText_Blended(fnt.GetTTF_Font(), txt.Begin(), c);
+	RawSysImage* surf = fnt.GetSysFont()->RenderTextBlended(txt.Begin(), c);
 	if (!surf) {
 		DLOG("Couldn't render text: " << SDL_GetError());
 		return;
@@ -96,7 +109,7 @@ void SDraw::DrawText(int x, int y, String txt, Font fnt, RGBA clr) {
 	cmd.i[0] = x;
 	cmd.i[1] = y;
 	cmd.img = Image(surf);
-	cmd.img.MakeTexture();
+	cmd.img.MakeSysAccel();
 	cmd.clr.a = clr.a;
 }
 
@@ -211,8 +224,13 @@ void SDraw::DrawPolyline(const Vector<Pointf>& pts, int line_width, RGBA c) {
 				tmp1.Add(ar);
 		}
 		
+		TODO
+		
+		#if 0
 		cmd.type = DRAW_TRIANGLES;
 		Triangulate::Process(tmp1, cmd.triangles);
+		#endif
+		
 		//cmd.type = DRAW_POLYLINE;
 		//cmd.pts <<= tmp1;
 	}
@@ -222,7 +240,8 @@ void SDraw::DrawPolygon(const Vector<Pointf>& pts, RGBA c) {
 	DrawCommand& cmd = GetNext();
 	cmd.type = DRAW_TRIANGLES;
 	cmd.clr = c;
-	Triangulate::Process(pts, cmd.triangles);
+	
+	TODO //Triangulate::Process(pts, cmd.triangles);
 }
 
 void SDraw::Offset(const Rect& r) {

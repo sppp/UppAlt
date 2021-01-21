@@ -1,7 +1,7 @@
 //$ class Ctrl {
 private:
 	static Ptr<Ctrl>      desktop;
-	static Vector<Ctrl *> topctrl;
+//	static Vector<Ctrl *> topctrl;
 	static bool           invalid;
 
 	static Point fbCursorPos;
@@ -25,7 +25,7 @@ private:
 
 	void DestroyWnd();
 
-	void NewTop()                       { top = new Top; top->owner_window = NULL; }
+//	void NewTop()                       { top = new Top; top->owner_window = NULL; }
 	void PutForeground();
 	static void MouseEventFB(Ptr<Ctrl> t, int event, Point p, int zdelta);
 
@@ -38,7 +38,7 @@ private:
 	friend class SystemDraw;
 	friend struct DnDLoop;
 
-	void  SetOpen(bool b)               { isopen = b; }
+//	void  SetOpen(bool b)               { isopen = b; }
 
 protected:
 	static int PaintLock;

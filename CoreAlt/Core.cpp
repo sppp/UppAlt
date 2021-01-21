@@ -583,7 +583,7 @@ Vector<String> Split(String to_split, String split_str, bool ignore_empty) {
 }
 
 
-
+Nuller Null;
 
 NAMESPACE_UPP_END
 

@@ -5,7 +5,7 @@
 
 NAMESPACE_UPP_BEGIN
 
-
+#define UPP Upp
 
 #if defined __linux__ || defined __freebsd__ || defined flagPOSIX
 	#define DIR_SEPS "/"
@@ -59,6 +59,7 @@ typedef unsigned int	uint32;
 typedef int				int32;
 typedef uint64_t		uint64;
 typedef int64_t			int64;
+typedef wchar_t			wchar;
 
 typedef unsigned char	Byte;
 typedef unsigned char	byte;
@@ -79,7 +80,13 @@ inline void IGNORE_RESULT(const T&) {}
 typedef void* VOID_PTR;
 typedef const void* CONST_VOID_PTR;
 
-class Nuller {};
+struct Nuller {
+	
+	
+	operator int() {return 0;}
+};
+
+extern Nuller Null;
 
 NAMESPACE_UPP_END
 
