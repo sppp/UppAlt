@@ -16,6 +16,7 @@ struct SysFont {
 	~SysFont() {Clear();}
 	
 	void Clear() {if (raw) TTF_CloseFont(raw); raw = 0;}
+	bool IsEmpty() const {return raw == 0;}
 	
 	RawSysFont* GetRaw() const {return raw;}
 	RawSysImage* RenderTextBlended(const char* s, SysColor c) {return TTF_RenderText_Blended(raw, s, c);}

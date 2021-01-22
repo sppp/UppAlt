@@ -1,8 +1,7 @@
 description "\377B157,86,255";
 
 uses
-	CoreAlt,
-	Sppp;
+	CoreAlt;
 
 file
 	Copying,

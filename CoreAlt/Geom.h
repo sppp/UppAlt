@@ -104,9 +104,12 @@ struct Size_ : Moveable<Size_<T>> {
 	Size_(const Size_& sz) { *this = sz; }
 	Size_(int cx, int cy) : cx(cx), cy(cy) {}
 	
-	bool IsEmpty() {return cx == 0 && cy == 0;}
-	bool IsPositive() {return cx > 0 && cy > 0;}
+	bool IsEmpty() const {return cx == 0 && cy == 0;}
+	bool IsPositive() const {return cx > 0 && cy > 0;}
+	bool IsEqual(const Size_& sz) const {return cx == sz.cx && cy == sz.cy;}
 	
+	bool operator==(const Size_& sz) {return IsEqual(sz);}
+	bool operator!=(const Size_& sz) {return !IsEqual(sz);}
 	void operator=(const Size_& sz) {
 		cx = sz.cx;
 		cy = sz.cy;
@@ -149,6 +152,10 @@ struct Rect_ : Moveable<Rect_<T>> {
 	Rect_(const Size_<T>& sz) { right = sz.cx; bottom = sz.cy; }
 	Rect_(T l, T t, T r, T b) : top(t), left(l), bottom(b), right(r) {}
 
+	bool IsEqual(const Rect_& r) const {return top == r.top && left == r.left && bottom == r.bottom && right == r.right;}
+	
+	bool operator==(const Rect_& r) {return IsEqual(r);}
+	bool operator!=(const Rect_& r) {return !IsEqual(r);}
 	void operator=(const Rect_& src) {
 		top = src.top;
 		left = src.left;

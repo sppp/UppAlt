@@ -16,6 +16,21 @@ public:
 };
 
 
+class StaticRect : public Ctrl {
+	Color clr;
+	
+public:
+	virtual Size GetMinSize() const;
+	virtual void Paint(Draw& w);
+	
+	void Color(Upp::Color c) {clr = c;}
+	
+	struct Style : ChStyle<Style> {
+		Value def_clr;
+	};
+};
+
+
 END_UPP_NAMESPACE
 
 

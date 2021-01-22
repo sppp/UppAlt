@@ -1,4 +1,4 @@
-#include <CtrlLib/CtrlLib.h>
+#include <CtrlLibAlt/CtrlLib.h>
 
 #ifdef flagVIRTUALGUI3DALT
 

@@ -66,6 +66,12 @@
 
 #include <emmintrin.h>
 
+#ifdef flagPOSIX
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
+
 #undef near
 #undef far
 

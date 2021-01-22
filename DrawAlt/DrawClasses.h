@@ -21,6 +21,8 @@ class Draw : NoCopy {
 	
 public:
 	
+	virtual ~Draw() {}
+	
 	void DrawLine(int x1, int y1, int x2, int y2, int width = 0, Color color = DefaultInk());
 	void DrawText(int x, int y, const String& text, Font font = StdFont(),
 		          Color ink = DefaultInk(), const int *dx = NULL);
@@ -236,6 +238,7 @@ struct DrawProxy : Draw {
 	
 	void SetTarget(Draw *w) { ptr = w; }
 	
+	#if 0
 	virtual dword GetInfo() const;
 
 	virtual Size GetPageSize() const;
@@ -282,6 +285,7 @@ struct DrawProxy : Draw {
 	virtual int  GetCloffLevel() const;
 	
 	virtual void Escape(const String& data);
+	#endif
 };
 
 

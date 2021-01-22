@@ -37,9 +37,7 @@ public:
 	bool IsEmpty() const {return ref == NULL;}
 	SysFont* GetSysFont() {if (!ref) return NULL; return &ref->font;}
 	
-	void SetScreenCloseClear();
-	
-	static FontRef* LoadFont(String dir, String name, int ptsize=16, int weight=1, bool italic=false);
+	static Font LoadFont(String dir, String name, int ptsize=16, int weight=1, bool italic=false);
 };
 
 

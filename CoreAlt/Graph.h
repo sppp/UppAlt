@@ -13,7 +13,7 @@ struct ColorT : Moveable<ColorT<T>> {
 	ColorT(const Nuller&) : r(0), g(0), b(0) {}
 	template <class K> ColorT(const ColorT<K>& c) {*this = c;}
 	
-	bool operator==(const ColorT& c) {return memcmp(&c, this, sizeof(ColorT)) == 0;}
+	bool IsEqual(const ColorT& c) {return r == c.r && g == c.g && b == c.b;}
 	
 	void operator=(const ColorT& c) {
 		r = c.r;
@@ -27,6 +27,9 @@ struct ColorT : Moveable<ColorT<T>> {
 		g = (T)c.g;
 		b = (T)c.b;
 	}
+	
+	bool operator==(const ColorT& c) {return IsEqual(c);}
+	bool operator!=(const ColorT& c) {return !IsEqual(c);}
 	
 	void Mul(double d) {r *= d; g *= d; b *= d;}
 	void Div(double d) {r /= d; g /= d; b /= d;}
@@ -156,8 +159,6 @@ inline Color Blend(Color a, Color b, float blend) {
 
 
 typedef Color(*ColorF)();
-
-inline Color RandomColor(int begin, int range) { return Color(begin + Random(range), begin + Random(range) , begin + Random(range)); }
 
 inline Color Black()     { return Color(0, 0, 0); }
 inline Color Gray()      { return Color(128, 128, 128); }

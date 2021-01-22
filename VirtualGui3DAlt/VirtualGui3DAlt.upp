@@ -5,12 +5,14 @@ uses
 
 file
 	Copying,
+	Local.h,
 	VirtualGuiAlt.h,
 	VirtualGuiAlt.cpp,
-	Local.h,
 	Keys.h,
 	After.h,
 	Ctrl.h,
+	Ctrl.cpp,
+	Wnd.cpp,
 	Top.h,
 	Top.cpp;
 

@@ -7,6 +7,8 @@ class Ctrl;
 class Windows;
 class WindowManager;
 
+
+
 class CtrlFrame {
 	
 protected:
@@ -166,6 +168,8 @@ public:
 	virtual ~Ctrl() {}
 	
 	static void SetDebugDraw(bool b=true) {do_debug_draw = b;}
+	static void CloseTopCtrls();
+	static void InitTimer();
 	
 	void Add(Ctrl& c);
 	void AddFrame(CtrlFrame& c) {c.ctrl = this; frames.Add(&c); SetPendingRedraw();}
@@ -181,6 +185,8 @@ public:
 	
 	Rect GetFrameRect() const {return frame_r;}
 	Rect GetContentRect() const {return content_r;}
+	Rect GetRect() const {return GetFrameRect();}
+	Rect GetWorkArea() const;
 	Size GetFrameSize() const {return frame_r.GetSize();}
 	Size GetContentSize() const {return content_r.GetSize();}
 	bool IsShown() const;
@@ -190,10 +196,11 @@ public:
 	bool HasMouseDeep() const {return has_mouse_deep;}
 	bool IsPendingLayout() const {return pending_layout;}
 	const LogPos& GetLogPos() const {return pos;}
-	Size GetSize() const;
+	Size GetSize() const {return GetContentSize();}
 	
 	virtual void SetFrameRect(const Rect& r);
 	void SetFrameRect(int x, int y, int w, int h) {SetFrameRect(Rect(x, y, x+w, y+h));}
+	void SetRect(const Rect& r) {SetFrameRect(r);}
 	void SetContentRect(const Rect& r) {content_r = r;}
 	void SetPendingLayout() {pending_layout = true;}
 	void SetPendingRedraw() {pending_redraw = true;}

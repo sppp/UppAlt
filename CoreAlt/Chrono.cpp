@@ -354,7 +354,7 @@ void AddGlobalTicks(uint32 diff) {
 }
 
 uint32 GetGlobalTicks() {return global_ticks;}
-
+void SetGlobalTicks(uint32 ticks) {global_ticks = ticks;}
 
 
 

@@ -23,6 +23,8 @@ public:
 	Ptr& operator=(T* o) {Set(o); return *this;}
 	
 	operator T*() const {return o;}
+	T* operator->() {return o;}
+	const T* operator->() const {return o;}
 	
 };
 

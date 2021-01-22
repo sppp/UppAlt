@@ -1,7 +1,7 @@
 //$ class Ctrl {
 private:
 	static Ptr<Ctrl>      desktop;
-//	static Vector<Ctrl *> topctrl;
+	static Vector<Ctrl *> topctrl;
 	static bool           invalid;
 
 	static Point fbCursorPos;

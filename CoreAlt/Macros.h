@@ -79,58 +79,54 @@ LOG("}"); \
 
 
 #ifdef flagGUI
-	#if defined(flagWIN32)
-		#define GUI_APP_MAIN \
-			void AppMain(); \
-			\
-			int WINAPI WinMain(HINSTANCE hinst, HINSTANCE hprev, LPSTR cmdline, int show) {\
-				char chr[512]; GetModuleFileNameA(NULL, chr, 512); \
-				::SetExeFilePath(chr); \
-				::SeedRandom(); \
-				::SetWin32Instances(hinst, hprev, show); \
-				::ParseCommandLine(cmdline); \
-				::ReadCoreCmdlineArgs(); \
-				::RunInitBlocks(); \
-				AppMain(); \
-				Thread::ShutdownThreads(); \
-				::RunExitBlocks(); \
-				return ::GetExitCode(); \
-			} \
-			\
-			void AppMain()
-	#else
-		#define GUI_APP_MAIN \
-			void AppMain(); \
-			\
-			int main(int argc, const char** argv) {\
-				::SetExeFilePath(argv[0]); \
-				::SeedRandom(); \
-				::ParseCommandLine(argc, argv); \
-				::ReadCoreCmdlineArgs(); \
-				::RunInitBlocks(); \
-				AppMain(); \
-				Thread::ShutdownThreads(); \
-				::RunExitBlocks(); \
-				return ::GetExitCode(); \
-			} \
-			\
-			void AppMain()
-		#define MAIN_FN
+	#if 0
+		#if defined(flagWIN32)
+			#define GUI_APP_MAIN \
+				void AppMain(); \
+				\
+				int WINAPI WinMain(HINSTANCE hinst, HINSTANCE hprev, LPSTR cmdline, int show) {\
+					char chr[512]; GetModuleFileNameA(NULL, chr, 512); \
+					::SetExeFilePath(chr); \
+					::SeedRandom(); \
+					::SetWin32Instances(hinst, hprev, show); \
+					::ParseCommandLine(cmdline); \
+					::ReadCoreCmdlineArgs(); \
+					::RunInitBlocks(); \
+					AppMain(); \
+					Thread::ShutdownThreads(); \
+					::RunExitBlocks(); \
+					return ::GetExitCode(); \
+				} \
+				\
+				void AppMain()
+		#else
+			#define GUI_APP_MAIN \
+				void AppMain(); \
+				\
+				int main(int argc, const char** argv) {\
+					::SetExeFilePath(argv[0]); \
+					::SeedRandom(); \
+					::ParseCommandLine(argc, argv); \
+					::ReadCoreCmdlineArgs(); \
+					::RunInitBlocks(); \
+					AppMain(); \
+					Thread::ShutdownThreads(); \
+					::RunExitBlocks(); \
+					return ::GetExitCode(); \
+				} \
+				\
+				void AppMain()
+			#define MAIN_FN
+		#endif
 	#endif
 #else
 	#define CONSOLE_APP_MAIN \
 	void AppMain(); \
 	\
 	extern "C" int main(int argc, const char** argv) {\
-		::Upp::SetExeFilePath(argv[0]); \
-		::Upp::SeedRandom(); \
-		::Upp::ParseCommandLine(argc, argv); \
-		::Upp::ReadCoreCmdlineArgs(); \
-		::Upp::RunInitBlocks(); \
+		UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
 		AppMain(); \
-		::Upp::Thread::ShutdownThreads(); \
-		::Upp::RunExitBlocks(); \
-		return ::Upp::GetExitCode(); \
+		return ::Upp::AppExit__(); \
 	} \
 	\
 	void AppMain()

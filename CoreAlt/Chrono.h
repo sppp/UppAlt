@@ -102,6 +102,7 @@ bool  ExistsTimeCallback(void *id);
 dword GetTimeClick();
 void AddGlobalTicks(uint32 ticks);
 uint32 GetGlobalTicks();
+void SetGlobalTicks(uint32 ticks);
 
 inline void  PostCallback(Callback cb, void *id = NULL)  { SetTimeCallback(1, cb, id); }
 

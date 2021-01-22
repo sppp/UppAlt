@@ -154,8 +154,6 @@ bool Ctrl::IsShown() const {
 }
 
 void Ctrl::SetFrameRect(const Rect& r) {
-	TODO
-	/*
 	this->frame_r = r;
 	SetPendingEffectRedraw();
 	if (parent) {
@@ -163,7 +161,7 @@ void Ctrl::SetFrameRect(const Rect& r) {
 		CoreWindow* w = GetWindow();
 		if (w)
 			w->SetPendingLayout();
-	}*/
+	}
 }
 
 void Ctrl::SetFocus() {
@@ -946,5 +944,17 @@ void Ctrl::DeepMouseLeave() {
 		}
 	}*/
 }
+
+
+void Ctrl::CloseTopCtrls() {
+	TODO
+}
+
+Rect Ctrl::GetWorkArea() const {
+	TODO
+}
+
+
+
 
 END_UPP_NAMESPACE

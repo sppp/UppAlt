@@ -676,4 +676,44 @@ void StoreToGlobal(Callback1<Stream&> x, const char *name) {
 	SetGlobalConfigData(name, ss);
 }
 
+
+
+
+
+
+String GetHomeDirectory() {
+	#ifdef flagPOSIX
+	struct passwd *pw = getpwuid(getuid());
+	return pw->pw_dir;
+	#elif defined flagWIN32
+	const char* path = getenv("USERPROFILE");
+	return path;
+	#else
+	#error Not implemented yet
+	#endif
+}
+
+
+String GetHomeDirFile(const char *fp) {
+	return AppendFileName(GetHomeDirectory(), fp);
+}
+
+
+
+
+void AppInit__(int argc, const char** argv, const char** environ) {
+	::Upp::SetExeFilePath(argv[0]);
+	::Upp::SeedRandom();
+	::Upp::ParseCommandLine(argc, argv);
+	::Upp::ReadCoreCmdlineArgs();
+	::Upp::RunInitBlocks();
+}
+
+int AppExit__() {
+	::Upp::Thread::ShutdownThreads();
+	::Upp::RunExitBlocks();
+	return ::Upp::GetExitCode();
+}
+
+
 NAMESPACE_UPP_END

@@ -5,7 +5,8 @@ library
 
 file
 	Copying,
-	SDL2GUIAlt.h,
+	SDL2GUI3DAlt.h,
+	SDL2GUI3DAlt.cpp,
 	"Gui Platform" readonly separator,
 	DrawBackend.h;
 

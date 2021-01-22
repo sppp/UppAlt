@@ -271,6 +271,13 @@ bool LoadFromGlobal(Callback1<Stream&> x, const char *name);
 void StoreToGlobal(Callback1<Stream&> x, const char *name);
 
 
+String GetHomeDirectory();
+String GetHomeDirFile(const char *fp);
+
+void AppInit__(int argc, const char** argv, const char** environ);
+int AppExit__();
+
+
 NAMESPACE_UPP_END
 
 #endif

@@ -46,6 +46,8 @@ struct VirtualGui3DAlt {
 	virtual void        CommitDraw() = 0;
 };
 
+extern VirtualGui3DAlt* VirtualGui3DAltPtr;
+
 class ImageDraw : public SImageDraw {
 public:
 	ImageDraw(Size sz) : SImageDraw(sz) {}
