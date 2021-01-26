@@ -67,6 +67,51 @@ private:
 };
 
 
+struct KeyInfo {
+	const char *name;
+	dword key[4];
+};
+
+
+class Bar {
+public:
+	struct Item {
+		virtual Item& Text(const char *text);
+		virtual Item& Key(dword key);
+		virtual Item& Repeat(bool repeat = true);
+		virtual Item& Image(const class Image& img);
+		virtual Item& Check(bool check);
+		virtual Item& Radio(bool check);
+		virtual Item& Enable(bool _enable = true);
+		virtual Item& Bold(bool bold = true);
+		virtual Item& Tip(const char *tip);
+		virtual Item& Help(const char *help);
+		virtual Item& Topic(const char *topic);
+		virtual Item& Description(const char *desc);
+		virtual void  FinalSync();
+
+		Item&   Label(const char *text);
+		Item&   RightLabel(const char *text);
+
+		Item& Key(KeyInfo& (*key)());
+
+		Item();
+		virtual ~Item();
+	};
+	
+private:
+	
+	
+	
+public:
+	typedef Bar CLASSNAME;
+	Bar();
+	
+	Bar& Add(String title, Callback cb);
+	Bar& Separator();
+	
+};
+
 
 struct LogPos {
 	
@@ -117,12 +162,11 @@ protected:
 	};
 	
 	
-	friend class SDL2;
-	friend class OpenVR;
-	friend class Windows;
-	friend class VR_ScreenWindow;
+	static  int       LoopLevel;
+	static  Ctrl     *LoopCtrl;
+	static  int64     EventLoopNo;
+	static  bool      do_debug_draw;
 	
-	static bool do_debug_draw;
 	Ctrl* GetCaptured();
 	Ctrl* GetWithMouse();
 	void SetCaptured(Ctrl* c);
@@ -134,22 +178,23 @@ protected:
 	
 	
 	
+	bool         inloop:1;
+	bool         ignore_mouse:1;
+	bool         hidden:1;
+	bool         want_focus:1;
+	bool         has_focus:1;
+	bool         has_focus_deep:1;
+	bool         has_mouse:1;
+	bool         has_mouse_deep:1;
+	bool         pending_fx_redraw:1;
+	bool         pending_redraw:1;
+	bool         pending_layout:1;
+	
 	Ctrl* parent = NULL;
 	Vector<Ctrl*> children;
 	Vector<CtrlFrame*> frames;
 	LogPos pos;
 	Rect frame_r, content_r;
-	bool hidden = false;
-	bool want_focus = false;
-	bool ignore_mouse = false;
-	bool has_focus = false;
-	bool has_focus_deep = false;
-	bool has_mouse = false;
-	bool has_mouse_deep = false;
-	bool pending_fx_redraw = true;
-	bool pending_redraw = true;
-	bool pending_layout = true;
-	
 	DrawCommand cmd_begin, cmd_frame, cmd_pre, cmd_post, cmd_end;
 	
 	virtual bool Redraw(bool only_pending);
@@ -169,7 +214,12 @@ public:
 	
 	static void SetDebugDraw(bool b=true) {do_debug_draw = b;}
 	static void CloseTopCtrls();
-	static void InitTimer();
+	static bool ProcessEvent(bool *quit = NULL);
+	static bool ProcessEvents(bool *quit = NULL);
+	static bool  ReleaseCtrlCapture();
+	static Ctrl *GetCaptureCtrl();
+	
+	void EventLoop(Ctrl *ctrl);
 	
 	void Add(Ctrl& c);
 	void AddFrame(CtrlFrame& c) {c.ctrl = this; frames.Add(&c); SetPendingRedraw();}
@@ -351,14 +401,16 @@ enum {
 	EVENT_SHUTDOWN,
 };
 
+struct CtrlEvent {
+	int type = 0;
+};
+
 class EmptySpaceCtrl : public Ctrl {
 	
 };
 
 
-struct ScreenEvent {
-	int type = 0;
-};
+
 
 /*class Screen : public Ctrl {
 	
@@ -379,6 +431,11 @@ public:
 class ParentCtrl : public Ctrl {
 	
 };
+
+
+
+
+
 
 END_UPP_NAMESPACE
 

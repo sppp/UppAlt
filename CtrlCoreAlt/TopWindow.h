@@ -5,7 +5,8 @@
 NAMESPACE_UPP
 
 
-class TopWindowFrame;
+class Windows;
+class CoreWindow;
 
 class TopWindow : public Ctrl {
 	String title;

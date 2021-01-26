@@ -29,8 +29,8 @@ struct SysImage {
 	SysImage(RawSysImage* raw) : raw(raw) {}
 	~SysImage() {Clear();}
 	void Clear() {if (raw) SDL_FreeSurface(raw); raw = 0;}
-	int GetWidth() const;
-	int GetHeight() const;
+	int GetWidth() const {if (raw) return raw->w; return 0;}
+	int GetHeight() const {if (raw) return raw->h; return 0;}
 	
 };
 

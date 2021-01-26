@@ -253,8 +253,14 @@ void MemoryMoveSlow(void* dst, const void* src, int n) {
 }
 
 
+MultiStream& LogMulti() {
+	static MultiStream s;
+	return s;
+}
 
-Stream& Log() {
+Stream& Log() {return LogMulti();}
+
+Stream& LogFile() {
 	static FileOut fout;
 	static StringStream ss; // for early logging
 	if (!fout.IsOpen()) {

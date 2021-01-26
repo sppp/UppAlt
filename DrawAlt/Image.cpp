@@ -12,5 +12,14 @@ void Image::MakeSysAccel() {
 }
 
 
+
+
+
+
+
+Image StreamRaster::LoadFileAny(String path) {
+	TODO
+}
+
 NAMESPACE_UPP_END
 

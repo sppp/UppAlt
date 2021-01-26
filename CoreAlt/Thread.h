@@ -6,15 +6,24 @@ NAMESPACE_UPP_BEGIN
 
 inline int CPU_Cores() {return std::thread::hardware_concurrency();}
 
+#define MAIN_THREAD_ID -1
+void __ForceSetThreadId(int i);
+
 class Thread {
 	One<std::thread> t;
 	Callback cb;
+	int id;
 	
 	static bool shutdown;
 	static AtomicInt thrd_count;
 	
+	
+	
+	static void SetThreadId(int i);
+	static int GetThreadId();
+	
 public:
-	Thread() {thrd_count++;}
+	Thread() {id = thrd_count++;}
 	~Thread() {thrd_count--;}
 
 
@@ -30,7 +39,9 @@ public:
 	template <class T> static void Start(T& fn) {
 		Thread* t = new Thread();
 		t->cb.Clear();
-		t->t = new std::thread([t, fn]() {
+		int id = t->GetId();
+		t->t = new std::thread([id, t, fn]() {
+			SetThreadId(id);
 			fn();
 			delete t;
 		});
@@ -41,10 +52,16 @@ public:
 	void Wait() {t->join();}
 	void Detach() {t->detach();}
 	
+	int GetId() const {return id;}
+	
 	static bool IsShutdownThreads() {return shutdown;}
 	static void ShutdownThreads();
 	
+	static bool IsMain();
+	
 };
+
+inline bool IsMainThread() { return Thread::IsMain(); }
 
 class Mutex {
 	std::mutex m;
@@ -124,7 +141,27 @@ void Sleep(int ms);
 
 
 
+typedef std::atomic_flag OnceFlag;
 
+template <class Primitive>
+class StaticPrimitive_ : NoCopy {
+	Primitive *primitive;
+	byte       buffer[sizeof(Primitive)];
+	OnceFlag   once;
+	
+	void Initialize() { primitive = new(buffer) Primitive; }
+
+public:
+	Primitive& Get()  { ONCELOCK_(once) Initialize(); return *primitive; }
+};
+
+class StaticMutex : StaticPrimitive_<Mutex> {
+public:
+	operator Mutex&()          { return Get(); }
+	bool TryEnter()            { return Get().TryEnter();}
+	void Enter()               { Get().Enter();}
+	void Leave()               { Get().Leave(); }
+};
 
 NAMESPACE_UPP_END
 

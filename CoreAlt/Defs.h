@@ -49,6 +49,7 @@ NAMESPACE_UPP_BEGIN
 #define ASSERT_(x, msg) {if (!(x)) {LOG(Upp::String("Assertion failed: ") + msg); __BREAK__;}}
 #define PANIC(msg) ASSERT_(false, msg)
 
+#define PKG(x) <x/x.h>
 
 
 typedef unsigned char	uint8;

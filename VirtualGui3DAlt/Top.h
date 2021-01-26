@@ -1,16 +1,11 @@
 //$ class TopWindow {
-public:
-	virtual void   State(int reason);
 
 private:
-	TopWindowFrame *frame;
+	Windows* wm = NULL;
+	CoreWindow* cw = NULL;
+	int id;
 	
-	void SyncRect();
-	void SyncFrameRect(const Rect& r);
-	void DestroyFrame();
-	
-	friend class Ctrl;
-
 public:
-	void GripResize();
+	void Init(Windows* wm, CoreWindow* cw, int id);
+	
 //$ };

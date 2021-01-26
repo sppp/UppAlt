@@ -9,10 +9,10 @@
 
 
 #include <CtrlLibAlt/CtrlLib.h>
+#include <GL/GL.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-
 
 NAMESPACE_UPP
 
@@ -25,6 +25,8 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	bool is_open = false;
 	bool is_maximized = false;
 	bool is_sizeable = false;
+	bool mouse_captured = false;
+	Sppp::Shader simple_shader;
 	
 	
 	virtual Size        GetSize();
@@ -38,6 +40,7 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	virtual void        SetMouseCursor(const Image& image);
 	virtual SystemDraw& BeginDraw();
 	virtual void        CommitDraw();
+	virtual uint32      GetTickCount();
 
 	virtual void        Quit();
 
@@ -47,11 +50,11 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 
 	void Attach(SDL_Window *win, SDL_GLContext glcontext);
 	void Detach();
-
 	bool Create(const Rect& rect, const char *title);
 	void Destroy();
-	
 	void Maximize(bool b=true);
+	bool Poll(CtrlEvent& e);
+	bool IsCaptured() const {return mouse_captured;}
 	
 	SDL2GUI3DAlt();
 	~SDL2GUI3DAlt();

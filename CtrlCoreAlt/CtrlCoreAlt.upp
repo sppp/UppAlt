@@ -6,6 +6,8 @@ uses
 file
 	Copying,
 	CtrlCore.h,
+	Util.h,
+	Util.cpp,
 	MKeys.h,
 	Ctrl.h,
 	Ctrl.cpp,

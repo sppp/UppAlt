@@ -13,7 +13,9 @@ T& PtrRef(T* o, String throw_msg) {
 	return *o;
 }
 
+MultiStream& LogMulti();
 Stream& Log();
+Stream& LogFile();
 Stream& Cout();
 Stream& Cerr();
 Stream& Cin();

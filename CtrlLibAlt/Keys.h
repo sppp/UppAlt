@@ -5,10 +5,7 @@
 NAMESPACE_UPP
 
 
-struct KeyInfo {
-	const char *name;
-	dword key[4];
-};
+
 
 
 END_UPP_NAMESPACE

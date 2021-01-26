@@ -503,6 +503,10 @@ public:
 		int len = strnlen(s, 1 << 20);
 		if (len != GetCount()) return false; return Compare(s, Begin(), len) == 0;
 	}
+	bool operator!=(const char* s) const {
+		int len = strnlen(s, 1 << 20);
+		if (len != GetCount()) return true; return Compare(s, Begin(), len) != 0;
+	}
 	
 	T operator[] (int i) const {return Get(i);}
 	T Get(int i) const { ASSERT(i >= 0 && i < count); return *(Begin() + i); }

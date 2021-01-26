@@ -25,6 +25,16 @@ void Thread::ShutdownThreads() {
 		Sleep(10);
 }
 
+int& __ThreadId() {
+	static thread_local int id;
+	return id;
+}
+
+void Thread::SetThreadId(int i) {__ThreadId() = i;}
+int  Thread::GetThreadId() {return __ThreadId();}
+bool Thread::IsMain() {return __ThreadId() == MAIN_THREAD_ID;}
+void __ForceSetThreadId(int i) {__ThreadId() = i;}
+
 void Sleep(int ms) {
 #if defined(flagWIN32)
 	::Sleep(ms);

@@ -47,12 +47,26 @@ void CtrlFrame::SetWithMouse(CtrlFrame* c) {
 
 
 
-bool Ctrl::do_debug_draw;
-
+int       Ctrl::LoopLevel;
+Ctrl     *Ctrl::LoopCtrl;
+bool      Ctrl::do_debug_draw;
+int64     Ctrl::EventLoopNo;
 
 
 
 Ctrl::Ctrl() {
+	inloop = false;
+	ignore_mouse = false;
+	hidden = false;
+	want_focus = false;
+	has_focus = false;
+	has_focus_deep = false;
+	has_mouse = false;
+	has_mouse_deep = false;
+	pending_fx_redraw = true;
+	pending_redraw = true;
+	pending_layout = true;
+	
 	cmd_begin.next = &cmd_frame;
 	cmd_frame.prev = &cmd_begin;
 	cmd_frame.next = &cmd_pre;
@@ -155,13 +169,13 @@ bool Ctrl::IsShown() const {
 
 void Ctrl::SetFrameRect(const Rect& r) {
 	this->frame_r = r;
-	SetPendingEffectRedraw();
+	/*SetPendingEffectRedraw();
 	if (parent) {
 		parent->SetPendingLayout();
 		CoreWindow* w = GetWindow();
 		if (w)
 			w->SetPendingLayout();
-	}
+	}*/
 }
 
 void Ctrl::SetFocus() {
@@ -954,6 +968,23 @@ Rect Ctrl::GetWorkArea() const {
 	TODO
 }
 
+
+bool Ctrl::ReleaseCtrlCapture() {
+	TODO
+	/*GuiLock __;
+	LLOG("ReleaseCtrlCapture");
+	if(captureCtrl) {
+		captureCtrl->CancelMode();
+		Ctrl *w = captureCtrl->GetTopCtrl();
+		captureCtrl = NULL;
+		CheckMouseCtrl();
+		if(w->HasWndCapture()) {
+			w->ReleaseWndCapture();
+			return true;
+		}
+	}
+	return false;*/
+}
 
 
 

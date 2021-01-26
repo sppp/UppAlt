@@ -702,11 +702,25 @@ String GetHomeDirFile(const char *fp) {
 
 
 void AppInit__(int argc, const char** argv, const char** environ) {
-	::Upp::SetExeFilePath(argv[0]);
+	::Upp::__ForceSetThreadId(MAIN_THREAD_ID);
 	::Upp::SeedRandom();
+	
+	#ifdef flagWIN32
+	char chr[512]; GetModuleFileNameA(NULL, chr, 512);
+	::SetExeFilePath(chr);
+	::ParseCommandLine((LPSTR)argv);
+	#else
+	if (argc > 0)
+		::Upp::SetExeFilePath(argv[0]);
 	::Upp::ParseCommandLine(argc, argv);
+	#endif
+	
 	::Upp::ReadCoreCmdlineArgs();
 	::Upp::RunInitBlocks();
+	
+	#if defined flagDEBUG && defined flagPOSIX
+	AddLocalFileDirectory(GetHomeDirectory() + "/upphub/UppCommon/share");
+	#endif
 }
 
 int AppExit__() {

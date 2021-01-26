@@ -5,8 +5,8 @@ uses
 
 file
 	Copying,
-	Local.h,
 	VirtualGuiAlt.h,
+	Local.h,
 	VirtualGuiAlt.cpp,
 	Keys.h,
 	After.h,
@@ -14,5 +14,14 @@ file
 	Ctrl.cpp,
 	Wnd.cpp,
 	Top.h,
-	Top.cpp;
+	Top.cpp,
+	ECS readonly separator,
+	AfterEcsLib.h,
+	Windows.cpp,
+	CoreWindow.h,
+	CoreWindow.cpp,
+	SubWindows.h,
+	WindowManager.h,
+	WindowFrame.cpp,
+	WindowManager.cpp;
 

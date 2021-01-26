@@ -43,6 +43,7 @@ enum {
 END_UPP_NAMESPACE
 
 
+#include "Util.h"
 #include "Ctrl.h"
 #include "TopWindow.h"
 

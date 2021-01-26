@@ -5,44 +5,7 @@
 NAMESPACE_UPP
 
 
-class Bar {
-public:
-	struct Item {
-		virtual Item& Text(const char *text);
-		virtual Item& Key(dword key);
-		virtual Item& Repeat(bool repeat = true);
-		virtual Item& Image(const class Image& img);
-		virtual Item& Check(bool check);
-		virtual Item& Radio(bool check);
-		virtual Item& Enable(bool _enable = true);
-		virtual Item& Bold(bool bold = true);
-		virtual Item& Tip(const char *tip);
-		virtual Item& Help(const char *help);
-		virtual Item& Topic(const char *topic);
-		virtual Item& Description(const char *desc);
-		virtual void  FinalSync();
 
-		Item&   Label(const char *text);
-		Item&   RightLabel(const char *text);
-
-		Item& Key(KeyInfo& (*key)());
-
-		Item();
-		virtual ~Item();
-	};
-	
-private:
-	
-	
-	
-public:
-	typedef Bar CLASSNAME;
-	Bar();
-	
-	Bar& Add(String title, Callback cb);
-	Bar& Separator();
-	
-};
 
 class BarCtrl : public Bar, public CtrlFrame {
 	

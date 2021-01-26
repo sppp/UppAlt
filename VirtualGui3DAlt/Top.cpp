@@ -1,25 +1,33 @@
-#include "Local.h"
+#include "Windows.h"
+
+NAMESPACE_SPPP_BEGIN
 
 
-NAMESPACE_UPP
-
-void TopWindowFrame::SyncRect() {
-	if(maximized) {
-		Size sz = GetWorkArea().GetSize();
-		if(GetRect().GetSize() != sz)
-			SetRect(sz);
-	}
+TopWindow::TopWindow() : wm(0), id(-1) {
+	
 }
 
-void TopWindow::SyncRect() {
-	frame->SyncRect();
-	Rect r = frame->GetClient();
-	if(r != GetRect())
-		SetRect(r);
+void TopWindow::Init(Windows* wm, CoreWindow* cw, int id) {
+	this->wm = wm;
+	this->cw = cw;
+	this->id = id;
+	
+	if (title.IsEmpty())
+		title = wm->GetTitle(id);
+	else
+		wm->SetTitle(id, title);
 }
 
-void TopWindow::State(int reason) {
-	TODO
+void TopWindow::Title(const String& title) {
+	this->title = title;
+	if (wm)
+		wm->SetTitle(id, title);
 }
 
-END_UPP_NAMESPACE
+void TopWindow::SetFrameRect(const Rect& r) {
+	Ctrl::SetFrameRect(r);
+	cw->SetFrameRect(r);
+}
+
+
+NAMESPACE_SPPP_END

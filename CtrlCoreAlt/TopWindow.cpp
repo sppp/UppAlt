@@ -16,7 +16,9 @@ void TopWindow::Title(const String& title) {
 }
 
 int TopWindow::Run(bool appmodal) {
-	TODO
+	EventLoop(this);
+	return GetExitCode();
+	
 	/*
 	GuiLock __;
 	if(!IsOpen())

@@ -44,6 +44,7 @@ struct VirtualGui3DAlt {
 	virtual bool        IsWaitingEvent() = 0;
 	virtual SystemDraw& BeginDraw() = 0;
 	virtual void        CommitDraw() = 0;
+	virtual uint32      GetTickCount() = 0;
 };
 
 extern VirtualGui3DAlt* VirtualGui3DAltPtr;
@@ -65,6 +66,7 @@ public:
 #define GUIPLATFORM_TOPWINDOW_DECLS_INCLUDE <VirtualGui3DAlt/Top.h>
 
 #define GUIPLATFORM_INCLUDE_AFTER <VirtualGui3DAlt/After.h>
+#define GUIPLATFORM_INCLUDE_AFTER_ECSLIB <VirtualGui3DAlt/AfterEcsLib.h>
 
 END_UPP_NAMESPACE
 

@@ -316,6 +316,52 @@ public:
 	int64 GetSize() const override {return size;}
 };
 
+class MultiStream : public Stream {
+	Vector<Stream*> streams;
+	int64 cursor = 0;
+	
+public:
+	MultiStream() {}
+	
+	void Add(Stream& s) {streams.Add(&s);}
+	void Clear() {streams.Clear();}
+	
+	#define MULTI_BOOL(fn) \
+		bool b = streams.GetCount(); \
+		for (Stream* s : streams) b = b && s->fn(); \
+		return b;
+	
+	bool IsLoading() override {MULTI_BOOL(IsLoading)}
+	bool IsStoring() override {MULTI_BOOL(IsStoring)}
+	bool IsEof() override {MULTI_BOOL(IsEof)}
+	
+	Stream& operator << (String str) override {Put(str.Begin(), str.GetCount()); return *this;}
+	Stream& operator << (int i) override {String str = IntStr(i); Put(str.Begin(), str.GetCount()); return *this;}
+	int Put(const void* mem, int size) override {
+		int wrote = size;
+		for (Stream* s : streams)
+			wrote = min(wrote, s->Put(mem, size));
+		cursor += wrote;
+		return wrote;
+	}
+	int Put(char c) override { return Put(&c, 1); }
+	int Put(const String& s) override { return Put(s.Begin(), s.GetCount()); }
+	int Get(void* mem, int size) override {
+		int read = size;
+		for (Stream* s : streams)
+			read = min(read, s->Put(mem, size));
+		return read;
+	}
+	int64 GetCursor() override { return cursor; }
+	int64 GetSize() const override {return cursor;}
+
+	void Seek(int64 i) override {}
+	String GetResult() const {return String();}
+	
+	operator String() const {return GetResult();}
+	
+};
+
 
 
 template <class T>
@@ -376,7 +422,12 @@ void StoreToFile(T& o, String path) {
 
 
 
+enum {
+	LOG_COUT = (1 << 0),
+	LOG_FILE = (1 << 1),
+};
 
+void StdLogSetup(dword flags);
 
 NAMESPACE_UPP_END
 

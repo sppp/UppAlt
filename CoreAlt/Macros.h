@@ -60,6 +60,8 @@ NAMESPACE_UPP_BEGIN
 
 
 #define LOG(x) {Upp::Log() << x << EOL; Upp::Log().Flush();}
+#define LLOG(x)
+
 
 #define DUMP(x) {LOG( #x  " = " << ToString(x));}
 
@@ -85,17 +87,11 @@ LOG("}"); \
 				void AppMain(); \
 				\
 				int WINAPI WinMain(HINSTANCE hinst, HINSTANCE hprev, LPSTR cmdline, int show) {\
-					char chr[512]; GetModuleFileNameA(NULL, chr, 512); \
-					::SetExeFilePath(chr); \
-					::SeedRandom(); \
 					::SetWin32Instances(hinst, hprev, show); \
-					::ParseCommandLine(cmdline); \
-					::ReadCoreCmdlineArgs(); \
-					::RunInitBlocks(); \
+					char chr[512]; GetModuleFileNameA(NULL, chr, 512); \
+					UPP::AppInit__(0, (const char **)cmdline, (const char**)environ); \
 					AppMain(); \
-					Thread::ShutdownThreads(); \
-					::RunExitBlocks(); \
-					return ::GetExitCode(); \
+					return ::Upp::AppExit__(); \
 				} \
 				\
 				void AppMain()
@@ -104,15 +100,9 @@ LOG("}"); \
 				void AppMain(); \
 				\
 				int main(int argc, const char** argv) {\
-					::SetExeFilePath(argv[0]); \
-					::SeedRandom(); \
-					::ParseCommandLine(argc, argv); \
-					::ReadCoreCmdlineArgs(); \
-					::RunInitBlocks(); \
+					UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
 					AppMain(); \
-					Thread::ShutdownThreads(); \
-					::RunExitBlocks(); \
-					return ::GetExitCode(); \
+					return ::Upp::AppExit__(); \
 				} \
 				\
 				void AppMain()
@@ -152,7 +142,8 @@ LOG("}"); \
 #define LINEID(pre, x) COMBINE(COMBINE(pre, x), __LINE__)
 #define INITBLOCK(x) void LINEID(Init,x) (); static Callinit LINEID(initcb,x) (LINEID(Init,x)); void LINEID(Init,x) ()
 #define EXITBLOCK(x) void LINEID(Exit,x) (); static Callexit LINEID(exitcb,x) (LINEID(Exit,x)); void LINEID(Exit,x) ()
-#define ONCELOCK static AtomicInt __once; if (__once++ == 0)
+#define ONCELOCK static std::atomic_flag __once; if (!__once.test_and_set())
+#define ONCELOCK_(once) if (!once.test_and_set())
 
 NAMESPACE_UPP_END
 
