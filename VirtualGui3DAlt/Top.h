@@ -1,11 +1,14 @@
 //$ class TopWindow {
 
 private:
-	Windows* wm = NULL;
-	CoreWindow* cw = NULL;
+	Sppp::Windows* wm = NULL;
+	Sppp::CoreWindow* cw = NULL;
 	int id;
 	
 public:
-	void Init(Windows* wm, CoreWindow* cw, int id);
+	void Init(Sppp::Windows* wm, Sppp::CoreWindow* cw, int id);
+	
+	Sppp::CoreWindow* GetWindow() const {return cw;}
+	
 	
 //$ };

@@ -87,8 +87,8 @@ class CoreWindow : public Ctrl, public Component<CoreWindow> {
 	WindowDecoration decor;
 	Button minimize, maximize, close;
 	Rect stored_rect;
-	Point global_mouse;
-	bool is_global_mouse_override = false;
+	//Point global_mouse;
+	//bool is_global_mouse_override = false;
 	int id = -1;
 	bool pending_partial_redraw = false;
 	
@@ -113,8 +113,8 @@ protected:
 	void DrawEnd(DrawCommand& cmd);
 	
 public:
-	Weak<Transform> transform;
-	Weak<Transform2D> transform2d;
+	Weak<Transform>    transform;
+	Weak<Transform2D>  transform2d;
 	
 public:
 	typedef CoreWindow CLASSNAME;
@@ -151,8 +151,8 @@ public:
 	}
 	
 	Point GetGlobalMouse();
-	bool IsGlobalMouseOverridden() const {return pending_partial_redraw;}
-	void SetGlobalMouse(Point pt) {is_global_mouse_override = true; global_mouse = pt;}
+	//bool IsGlobalMouseOverridden() const {return pending_partial_redraw;}
+	//void SetGlobalMouse(Point pt) {is_global_mouse_override = true; global_mouse = pt;}
 	void Title(String label) {decor.SetLabel(label);}
 	void StoreRect() {stored_rect = GetFrameRect();}
 	void LoadRect() {ASSERT(stored_rect.bottom && stored_rect.right); SetFrameRect(stored_rect);}

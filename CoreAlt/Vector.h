@@ -460,7 +460,9 @@ public:
 			Add(*it++);
 	}
 	~Array() { Clear(); }
-
+	
+	void Serialize(Stream& s);
+	
 	Iterator Begin() {return Iterator(l.Begin());}
 	Iterator End() {return Iterator(l.End());}
 	const Iterator Begin() const {return Iterator(l.Begin());}
@@ -588,7 +590,9 @@ public:
 			values.Add(*cur++);
 		}
 	}
-
+	
+	void Serialize(Stream& s) {hashes.Serialize(s); values.Serialize(s);}
+	
 	Iterator Begin() {return Iterator(values.Begin());}
 	Iterator begin() {return Iterator(values.Begin());}
 	Iterator End() {return Iterator(values.End());}
@@ -684,6 +688,8 @@ public:
 		while (it != end) {Add(std::get<0>(*it), std::get<1>(*it)); it++;}
 	}
 	~Map() { Clear(); }
+	
+	void Serialize(Stream& s) {keys.Serialize(s); values.Serialize(s);;}
 	
 	const Index<K>& GetKeys() const {return keys;}
 	const Array<V>& GetValues() const {return values;}

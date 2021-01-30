@@ -208,6 +208,32 @@ inline Rect RectC(int x, int y, int w, int h) { return Rect(x, y, x + w, y + h);
 
 
 template <class T>
+struct Triangle_ : Moveable<Triangle_<T>> {
+	typedef Point_<T> Pt;
+
+	Pt a, b, c;
+
+	Triangle_() {}
+	Triangle_(const Triangle_& t) { *this = t; }
+	void operator=(const Triangle_& t) {
+		a = t.a;
+		b = t.b;
+		c = t.c;
+	}
+	void Set(const Pt& a, const Pt& b, const Pt& c) {
+		this->a = a;
+		this->b = b;
+		this->c = c;
+	}
+};
+
+typedef Triangle_<int> Triangle;
+typedef Triangle_<float> Trianglef;
+typedef Triangle_<double> Triangled;
+
+
+
+template <class T>
 T GetOffsets(const T& a, const T& b, double width) {
 	double dx = b.x - a.x;
 	double dy = b.y - a.y;
@@ -215,10 +241,6 @@ T GetOffsets(const T& a, const T& b, double width) {
 	double scale = width / (2 * len);
 	return T(-scale * dy, scale * dx);
 }
-
-
-
-
 
 
 

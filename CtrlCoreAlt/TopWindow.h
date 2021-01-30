@@ -2,11 +2,10 @@
 #define _CtrlCoreAlt_TopWindow_h_
 
 
+
+
 NAMESPACE_UPP
 
-
-class Windows;
-class CoreWindow;
 
 class TopWindow : public Ctrl {
 	String title;

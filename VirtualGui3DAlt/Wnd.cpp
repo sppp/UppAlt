@@ -1,4 +1,4 @@
-#include "Local.h"
+#include <EcsLib/EcsLib.h>
 
 
 NAMESPACE_UPP

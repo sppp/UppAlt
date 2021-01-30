@@ -1,11 +1,18 @@
 #ifndef _CtrlCoreAlt_Ctrl_h_
 #define _CtrlCoreAlt_Ctrl_h_
 
+namespace Sppp {
+
+class Windows;
+class WindowManager;
+class CoreWindow;
+
+}
+
+
 NAMESPACE_UPP
 
 class Ctrl;
-class Windows;
-class WindowManager;
 
 
 
@@ -198,7 +205,6 @@ protected:
 	DrawCommand cmd_begin, cmd_frame, cmd_pre, cmd_post, cmd_end;
 	
 	virtual bool Redraw(bool only_pending);
-	void DeepLayout();
 	bool DeepKey(dword key, int count);
 	bool DeepMouseMove(const Point& pt, dword keyflags);
 	bool DeepMouse(int mouse_code, const Point& pt, dword keyflags);
@@ -218,6 +224,8 @@ public:
 	static bool ProcessEvents(bool *quit = NULL);
 	static bool  ReleaseCtrlCapture();
 	static Ctrl *GetCaptureCtrl();
+	static Image OverrideCursor(const Image& m);
+	static Image DefaultCursor();
 	
 	void EventLoop(Ctrl *ctrl);
 	
@@ -226,8 +234,10 @@ public:
 	void AddChild(Ctrl* c);
 	Ctrl* GetLastChild();
 	void RemoveChild(Ctrl* c);
+	void DeepLayout();
 	
 	Ctrl* GetParent();
+	TopWindow* GetTopWindow() const;
 //	CoreWindow* GetWindow();
 //	Windows* GetWindows();
 	int GetCount() const {return children.GetCount();}

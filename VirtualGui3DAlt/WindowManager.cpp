@@ -1,5 +1,6 @@
 #if 0
-#include "Windows.h"
+#include <EcsLib/EcsLib.h>
+
 
 NAMESPACE_SPPP_BEGIN
 

@@ -572,7 +572,7 @@ typedef Exc NeverExc;
 typedef Exc TodoExc;
 typedef Exc SystemExc;
 
-#define NEVER throw NeverExc()
+#define NEVER() throw NeverExc()
 
 inline int ToUpper(int chr) {
 	if (chr >= 'a' && chr <= 'z')

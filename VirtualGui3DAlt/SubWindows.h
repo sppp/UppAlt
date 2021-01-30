@@ -14,7 +14,7 @@ class SubMenuFrame : public Ctrl {
 	int height, shift, arrow_border;
 	bool left_arrow, right_arrow;
 	Windows* wins;
-	Rgba clr_bg, clr_tr;
+	Color clr_bg, clr_tr;
 	Vector<int> id_pos;
 	int clicked_id;
 	
@@ -65,12 +65,12 @@ protected:
 protected:
 	typedef Windows CLASSNAME;
 	
-	friend class TopWindow;
+	friend class Upp::TopWindow;
 	friend class CoreWindow;
 	friend class SubMenuFrame;
-	friend class Core;
-	friend class CtrlFrame;
-	friend class Ctrl;
+	//friend class Core;
+	friend class Upp::CtrlFrame;
+	friend class Upp::Ctrl;
 	
 	void QueueCloseWindow(int win_id) {close_window_queue.Add(win_id);}
 	void MoveWindow(Point pt, int win_id);

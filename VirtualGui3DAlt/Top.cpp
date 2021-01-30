@@ -1,13 +1,14 @@
-#include "Windows.h"
+#include <EcsLib/EcsLib.h>
 
-NAMESPACE_SPPP_BEGIN
+
+NAMESPACE_UPP
 
 
 TopWindow::TopWindow() : wm(0), id(-1) {
 	
 }
 
-void TopWindow::Init(Windows* wm, CoreWindow* cw, int id) {
+void TopWindow::Init(Sppp::Windows* wm, Sppp::CoreWindow* cw, int id) {
 	this->wm = wm;
 	this->cw = cw;
 	this->id = id;
@@ -30,4 +31,4 @@ void TopWindow::SetFrameRect(const Rect& r) {
 }
 
 
-NAMESPACE_SPPP_END
+END_UPP_NAMESPACE

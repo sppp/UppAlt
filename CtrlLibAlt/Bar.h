@@ -77,6 +77,15 @@ public:
 };
 
 
+class MenuBar : public BarCtrl {
+	
+	
+public:
+	
+	static void Execute(Callback1<Bar&> cb);
+	
+};
+
 END_UPP_NAMESPACE
 
 #endif

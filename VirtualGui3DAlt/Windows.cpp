@@ -1,4 +1,5 @@
-#include "Windows.h"
+#include <EcsLib/EcsLib.h>
+
 
 NAMESPACE_SPPP_BEGIN
 
@@ -10,28 +11,28 @@ NAMESPACE_SPPP_BEGIN
 Image& WindowsImg::close() {
 	static Image img;
 	if (img.IsEmpty())
-		img = StreamRaster::LoadAny(FindLocalFile("imgs" DIR_SEPS "close.png"));
+		img = StreamRaster::LoadFileAny(FindLocalFile("imgs" DIR_SEPS "close.png"));
 	return img;
 }
 
 Image& WindowsImg::maximize() {
 	static Image img;
 	if (img.IsEmpty())
-		img = StreamRaster::LoadAny(FindLocalFile("imgs" DIR_SEPS "maximize.png"));
+		img = StreamRaster::LoadFileAny(FindLocalFile("imgs" DIR_SEPS "maximize.png"));
 	return img;
 }
 
 Image& WindowsImg::minimize() {
 	static Image img;
 	if (img.IsEmpty())
-		img = StreamRaster::LoadAny(FindLocalFile("imgs" DIR_SEPS "minimize.png"));
+		img = StreamRaster::LoadFileAny(FindLocalFile("imgs" DIR_SEPS "minimize.png"));
 	return img;
 }
 
 Image& WindowsImg::nwse() {
 	static Image img;
 	if (img.IsEmpty()) {
-		img = StreamRaster::LoadAny(FindLocalFile("imgs" DIR_SEPS "nwse.png"));
+		img = StreamRaster::LoadFileAny(FindLocalFile("imgs" DIR_SEPS "nwse.png"));
 		img.CenterHotSpot();
 	}
 	return img;
@@ -40,7 +41,7 @@ Image& WindowsImg::nwse() {
 Image& WindowsImg::nesw() {
 	static Image img;
 	if (img.IsEmpty()) {
-		img = StreamRaster::LoadAny(FindLocalFile("imgs" DIR_SEPS "nesw.png"));
+		img = StreamRaster::LoadFileAny(FindLocalFile("imgs" DIR_SEPS "nesw.png"));
 		img.CenterHotSpot();
 	}
 	return img;
@@ -49,7 +50,7 @@ Image& WindowsImg::nesw() {
 Image& WindowsImg::ns() {
 	static Image img;
 	if (img.IsEmpty()) {
-		img = StreamRaster::LoadAny(FindLocalFile("imgs" DIR_SEPS "ns.png"));
+		img = StreamRaster::LoadFileAny(FindLocalFile("imgs" DIR_SEPS "ns.png"));
 		img.CenterHotSpot();
 	}
 	return img;
@@ -58,7 +59,7 @@ Image& WindowsImg::ns() {
 Image& WindowsImg::ew() {
 	static Image img;
 	if (img.IsEmpty()) {
-		img = StreamRaster::LoadAny(FindLocalFile("imgs" DIR_SEPS "ew.png"));
+		img = StreamRaster::LoadFileAny(FindLocalFile("imgs" DIR_SEPS "ew.png"));
 		img.CenterHotSpot();
 	}
 	return img;

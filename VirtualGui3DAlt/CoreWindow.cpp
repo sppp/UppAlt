@@ -1,8 +1,5 @@
-#include "Windows.h"
+#include <EcsLib/EcsLib.h>
 
-#ifdef flagSDL2
-	#include <screen/sdl2/SDL2.h>
-#endif
 
 NAMESPACE_SPPP_BEGIN
 
@@ -13,10 +10,11 @@ Shader CoreWindow::window_shader;
 
 
 Point CoreWindow::GetGlobalMouse() {
-	if (!is_global_mouse_override)
+	/*if (!is_global_mouse_override)
 		return SDL2::GetGlobalMouse();
 	else
-		return global_mouse;
+		return global_mouse;*/
+	TODO
 }
 
 void CoreWindow::ResizeFrame::FrameLayout(Rect& r) {
@@ -27,7 +25,7 @@ void CoreWindow::ResizeFrame::FrameLayout(Rect& r) {
 
 void CoreWindow::ResizeFrame::FramePaint(Draw& w, const Rect& r) {
 	Size sz(r.GetSize());
-	Rgba c = !is_active ? Rgba{1.0, 0.25, 0.25, 1} : Rgba{0, 0, 1.0, 1.0};
+	Color c = !is_active ? Color(255, 64, 64) : Color(0, 0, 255);
 	w.DrawRect(r.left, r.top, frame_width, sz.cy, c);
 	w.DrawRect(r.right - frame_width, r.top, frame_width, sz.cy, c);
 	w.DrawRect(r.left, r.top, sz.cx, frame_width, c);
@@ -190,7 +188,7 @@ void CoreWindow::ResizeFrame::DoResize() {
 
 void CoreWindow::ResizeFrame::MouseMove(Point frame_p, dword keyflags) {
 	if (is_resizing) {
-		CoreWindow* cw = ctrl->GetWindow();
+		CoreWindow* cw = ctrl->GetTopWindow()->GetWindow();
 		if (used_momentum) {
 			resize_start_pt = cw->GetGlobalMouse();
 			used_momentum = false;
@@ -206,19 +204,19 @@ void CoreWindow::ResizeFrame::MouseMove(Point frame_p, dword keyflags) {
 				break;
 			case TL:
 			case BR:
-				SDL2::OverrideCursor(WindowsImg::nwse());
+				Ctrl::OverrideCursor(WindowsImg::nwse());
 				break;
 			case TR:
 			case BL:
-				SDL2::OverrideCursor(WindowsImg::nesw());
+				Ctrl::OverrideCursor(WindowsImg::nesw());
 				break;
 			case TOP:
 			case BOTTOM:
-				SDL2::OverrideCursor(WindowsImg::ns());
+				Ctrl::OverrideCursor(WindowsImg::ns());
 				break;
 			case LEFT:
 			case RIGHT:
-				SDL2::OverrideCursor(WindowsImg::ew());
+				Ctrl::OverrideCursor(WindowsImg::ew());
 				break;
 		}
 	}
@@ -227,7 +225,7 @@ void CoreWindow::ResizeFrame::MouseMove(Point frame_p, dword keyflags) {
 void CoreWindow::ResizeFrame::MouseLeave() {
 	if (is_resizing) ReleaseCapture();
 	is_resizing = false;
-	SDL2::DefaultCursor();
+	Ctrl::DefaultCursor();
 }
 
 void CoreWindow::ResizeFrame::LeftDown(Point p, dword keyflags) {
@@ -319,16 +317,16 @@ void CoreWindow::FocusEvent() {wins->FocusWindow(id); tw->FocusEvent();}
 void CoreWindow::SetFrameRect(const Rect& r) {
 	Ctrl::SetFrameRect(r);
 	if (!transform2d.IsEmpty()) {
-		transform2d->position.x = r.left;
-		transform2d->position.y = r.top;
-		transform2d->size.x = r.Width();
-		transform2d->size.y = r.Height();
+		transform2d->position[0] = r.left;
+		transform2d->position[1] = r.top;
+		transform2d->size[0] = r.Width();
+		transform2d->size[1] = r.Height();
 	}
 	if (!transform.IsEmpty()) {
-		transform->position.x = r.left;
-		transform->position.y = r.top;
-		transform->size.x = r.Width();
-		transform->size.y = r.Height();
+		transform->position[0] = r.left;
+		transform->position[1] = r.top;
+		transform->size[0] = r.Width();
+		transform->size[1] = r.Height();
 	}
 }
 
@@ -345,8 +343,10 @@ bool CoreWindow::Redraw(bool only_pending) {
 	if (!fb.Create(sz.cx, sz.cy))
 		return false;
 	
-	#ifdef flagSDL2
-	glViewport(0, 0, SDL2::GetWidth(), SDL2::GetHeight());
+    Rect win_r = GetStoredRect();
+    Size win_sz = win_r.GetSize();
+	#ifdef flagSDL2GUI3DALT
+	glViewport(0, 0, win_sz.cx, win_sz.cy);
 	#else
 	#error "Unimplemented"
 	#endif
@@ -383,20 +383,20 @@ bool CoreWindow::Redraw(bool only_pending) {
     window_shader.SetInt("texture2", 1);
 	
 	
-	mat4 projection = ortho<float>(-width_2, width_2, -height_2, height_2, -1024.0f, 1024.0f);
+	mat4 projection = GetViewport(-width_2, width_2, -height_2, height_2, 1024);
     window_shader.SetMat4("projection", projection);
     
-    mat4 view = lookAt(vec3(0, 0, -1), vec3(0,0,0), vec3(0.0f, 1.0f, 0.0f));
+    mat4 view = LookAt(vec3(0., 0., -1.), vec3(0.,0.,0.), vec3(0.0f, 1.0f, 0.0f));
 	window_shader.SetMat4("view", view);
     
-    double x_ratio = (double)SDL2::GetWidth() / sz.cx;
-	double y_ratio = (double)SDL2::GetHeight() / sz.cy;
+    double x_ratio = (double)win_sz.cx / sz.cx;
+	double y_ratio = (double)win_sz.cy / sz.cy;
 	mat4 scale =
 		translate(
-			scale(identity<mat4>(), vec3(1.0 / x_ratio, 1.0 / y_ratio, 1.0)),
+			Sppp::scale(identity<mat4>(), vec3(1.0 / x_ratio, 1.0 / y_ratio, 1.0)),
 			vec3(
-				(r.left + (SDL2::GetWidth() - r.right)) * 0.5,
-				(-r.top - (SDL2::GetHeight() - r.bottom)) * 0.5,
+				(r.left + (win_sz.cx - r.right)) * 0.5,
+				(-r.top - (win_sz.cy - r.bottom)) * 0.5,
 				0));
 	window_shader.SetMat4("scale", scale);
 	
@@ -466,13 +466,12 @@ void CoreWindow::DrawLine(DrawCommand& cmd) {
 	float x1 = -width * 0.5 + pos_x1;
 	float y1 = -height * 0.5 + pos_y1;
 	
-	Mesh mesh;
+	Model model;
+	Mesh& mesh = model.meshes.Add();
 	mesh.vertices.Reserve(2);
 	mesh.vertices.Add().Set(x0, y0, 0, 0, 1);
 	mesh.vertices.Add().Set(x1, y1, 0, 1, 0);
-	mesh.material.ambient.r = cmd.clr.r;
-	mesh.material.ambient.g = cmd.clr.g;
-	mesh.material.ambient.b = cmd.clr.b;
+	ColorCopy(cmd.clr, mesh.material.ambient);
 	//mesh.material.ambient.a = cmd.clr.a;
 	mesh.is_colored_only = true;
 	mesh.is_lines = true;
@@ -480,7 +479,7 @@ void CoreWindow::DrawLine(DrawCommand& cmd) {
 	mesh.indices.Add(0);
 	mesh.indices.Add(1);
 	mesh.SetupMesh();
-	mesh.Paint(window_shader);
+	window_shader.Paint(model);
 }
 
 void CoreWindow::DrawImage(DrawCommand& cmd) {
@@ -496,13 +495,14 @@ void CoreWindow::DrawImage(DrawCommand& cmd) {
 	float x1 = x0 - scale_x;
 	float y1 = y0 - scale_y;
 	
-	Mesh mesh;
+	Model model;
+	Mesh& mesh = model.meshes.Add();
 	mesh.vertices.Reserve(4);
 	mesh.vertices.Add().Set(x0, y0, 0, 1, 1);
 	mesh.vertices.Add().Set(x0, y1, 0, 1, 0);
 	mesh.vertices.Add().Set(x1, y1, 0, 0, 0);
 	mesh.vertices.Add().Set(x1, y0, 0, 0, 1);
-	mesh.textures.Add().img = cmd.img;
+	model.textures.Add().Set(cmd.img);
 	//if (GetTextureImageCount()) mesh.textures.Add().img = GetTextureImage(0);
 	mesh.is_colored_only = false;
 	mesh.indices.Reserve(6);
@@ -513,7 +513,7 @@ void CoreWindow::DrawImage(DrawCommand& cmd) {
 	mesh.indices.Add(2);
 	mesh.indices.Add(3);
 	mesh.SetupMesh();
-	mesh.Paint(window_shader);
+	window_shader.Paint(model);
 }
 
 void CoreWindow::DrawRect(DrawCommand& cmd) {
@@ -529,17 +529,16 @@ void CoreWindow::DrawRect(DrawCommand& cmd) {
 	float x1 = x0 - scale_x;
 	float y1 = y0 - scale_y;
 	
-	Mesh mesh;
+	Model model;
+	Mesh& mesh = model.meshes.Add();
 	mesh.vertices.Reserve(4);
 	mesh.vertices.Add().Set(x0, y0, 0, 0, 1);
 	mesh.vertices.Add().Set(x0, y1, 0, 0, 0);
 	mesh.vertices.Add().Set(x1, y1, 0, 1, 0);
 	mesh.vertices.Add().Set(x1, y0, 0, 1, 1);
-	//mesh.textures.Add().tex = tex;
-	//if (GetTextureImageCount()) mesh.textures.Add().img = GetTextureImage(0);
-	mesh.material.ambient.r = cmd.clr.r;
-	mesh.material.ambient.g = cmd.clr.g;
-	mesh.material.ambient.b = cmd.clr.b;
+	//model.textures.Add().tex = tex;
+	//if (GetTextureImageCount()) model.textures.Add().img = GetTextureImage(0);
+	ColorCopy(cmd.clr, mesh.material.ambient);
 	//mesh.material.ambient.a = cmd.clr.a;
 	mesh.is_colored_only = true;
 	mesh.indices.Reserve(6);
@@ -550,7 +549,7 @@ void CoreWindow::DrawRect(DrawCommand& cmd) {
 	mesh.indices.Add(2);
 	mesh.indices.Add(3);
 	mesh.SetupMesh();
-	mesh.Paint(window_shader);
+	window_shader.Paint(model);
 }
 
 void CoreWindow::DrawTriangles(DrawCommand& cmd) {
@@ -558,44 +557,43 @@ void CoreWindow::DrawTriangles(DrawCommand& cmd) {
 	int width = sz.cx;
 	int height = sz.cy;
 	
-	Trianglef* t = cmd.triangles.Get();
+	const Trianglef* tri = cmd.triangles.GetData();
 	int count = cmd.triangles.GetCount();
-	Mesh mesh;
+	Model model;
+	Mesh& mesh = model.meshes.Add();
 	mesh.vertices.Reserve(count * 3);
 	mesh.indices.Reserve(count * 3);
 	
 	
 	for(int i = 0; i < count; i++) {
-		float pos_x = t->a.x;
-		float pos_y = t->a.y;
+		const Trianglef& t = *tri++;
+		float pos_x = t.a.x;
+		float pos_y = t.a.y;
 		float x = -width  * 0.5 + pos_x;
 		float y = -height * 0.5 + pos_y;
 		mesh.indices.Add(mesh.vertices.GetCount());
 		mesh.vertices.Add().Set(x, y, 0, 0, 1);
 		
-		pos_x = t->c.x;
-		pos_y = t->c.y;
+		pos_x = t.c.x;
+		pos_y = t.c.y;
 		x = -width  * 0.5 + pos_x;
 		y = -height * 0.5 + pos_y;
 		mesh.indices.Add(mesh.vertices.GetCount());
 		mesh.vertices.Add().Set(x, y, 0, 1, 1);
 		
-		pos_x = t->b.x;
-		pos_y = t->b.y;
+		pos_x = t.b.x;
+		pos_y = t.b.y;
 		x = -width  * 0.5 + pos_x;
 		y = -height * 0.5 + pos_y;
 		mesh.indices.Add(mesh.vertices.GetCount());
 		mesh.vertices.Add().Set(x, y, 0, 1, 0);
 		
-		t++;
 	}
-	mesh.material.ambient.r = cmd.clr.r;
-	mesh.material.ambient.g = cmd.clr.g;
-	mesh.material.ambient.b = cmd.clr.b;
+	ColorCopy(cmd.clr, mesh.material.ambient);
 	//mesh.material.ambient.a = cmd.clr.a;
 	mesh.is_colored_only = true;
 	mesh.SetupMesh();
-	mesh.Paint(window_shader);
+	window_shader.Paint(model);
 }
 
 void CoreWindow::DrawPolyline(DrawCommand& cmd) {
@@ -603,7 +601,8 @@ void CoreWindow::DrawPolyline(DrawCommand& cmd) {
 	int width = sz.cx;
 	int height = sz.cy;
 	
-	Mesh mesh;
+	Model model;
+	Mesh& mesh = model.meshes.Add();
 	mesh.vertices.Reserve(2);
 	const Pointf *a = &cmd.pts[0];
 	for(int i = 0; i < cmd.pts.GetCount(); i++, a++) {
@@ -617,14 +616,12 @@ void CoreWindow::DrawPolyline(DrawCommand& cmd) {
 			mesh.indices.Add(i);
 		}
 	}
-	mesh.material.ambient.r = cmd.clr.r;
-	mesh.material.ambient.g = cmd.clr.g;
-	mesh.material.ambient.b = cmd.clr.b;
+	ColorCopy(cmd.clr, mesh.material.ambient);
 	//mesh.material.ambient.a = cmd.clr.a;
 	mesh.is_colored_only = true;
 	mesh.is_lines = true;
 	mesh.SetupMesh();
-	mesh.Paint(window_shader);
+	window_shader.Paint(model);
 }
 
 void CoreWindow::DrawOffset(DrawCommand& cmd) {

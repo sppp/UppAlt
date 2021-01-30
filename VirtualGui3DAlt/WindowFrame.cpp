@@ -1,4 +1,5 @@
-#include "Windows.h"
+#include <EcsLib/EcsLib.h>
+
 
 NAMESPACE_SPPP_BEGIN
 
@@ -24,7 +25,6 @@ void SubMenuFrame::Paint(Draw& id) {
 	Size menu_sz(GetContentSize());
 	
 	id.DrawRect(0, 0, menu_sz.cx, menu_sz.cy, clr_bg);
-	
 	id.DrawLine(0, 0, menu_sz.cx-1, 0, 1, clr_tr);
 	
 	Font fnt = StdFont(15);

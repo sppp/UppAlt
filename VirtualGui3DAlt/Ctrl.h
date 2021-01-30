@@ -13,4 +13,5 @@ public:
 	static void ExitFB();
 	static void SetDesktopSize(Size sz);
 	
+	Sppp::CoreWindow* GetWindow() const;
 //$ };
