@@ -79,8 +79,12 @@ void Ctrl::DoPaint() {
 	}
 }
 
+void Ctrl::Invalidate() {
+	invalid = true;
+}
+
 void Ctrl::PaintScene(SystemDraw& draw) {
-	TODO
+	dynamic_cast<SDL2GUI3DAlt*>(draw.gui)->Render(true);
 }
 
 END_UPP_NAMESPACE

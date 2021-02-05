@@ -9,6 +9,7 @@ public:
 	void Init(Sppp::Windows* wm, Sppp::CoreWindow* cw, int id);
 	
 	Sppp::CoreWindow* GetWindow() const {return cw;}
+	Sppp::Windows* GetWindows() const {return wm;}
 	
 	
 //$ };

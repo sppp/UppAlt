@@ -160,6 +160,7 @@ public:
 	void SetPendingPartialRedraw(bool b=true) {pending_partial_redraw = b;}
 	
 	GLuint GetTexture() {return fb.GetTexture();}
+	const Framebuffer& GetFramebuffer() const {return fb;}
 	int GetId() const {return id;}
 	Rect GetStoredRect() const {return stored_rect;}
 	String GetTitle() const {return decor.GetLabel();}

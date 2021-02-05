@@ -19,4 +19,16 @@ Bar& Bar::Separator() {
 }
 
 
+
+
+
+
+
+
+
+void MenuBar::Execute(Callback1<Bar&> cb) {
+	TODO
+}
+
+
 END_UPP_NAMESPACE

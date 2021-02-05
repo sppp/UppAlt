@@ -12,6 +12,8 @@ public:
 	static void InitFB();
 	static void ExitFB();
 	static void SetDesktopSize(Size sz);
+	static void Invalidate();
 	
-	Sppp::CoreWindow* GetWindow() const;
+	Sppp::CoreWindow* GetWindow();
+	static Sppp::Windows* GetWindows();
 //$ };

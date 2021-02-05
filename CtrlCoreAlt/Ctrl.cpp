@@ -137,31 +137,18 @@ Ctrl* Ctrl::GetParent() {
 	return parent;
 }
 
-#if 0
-
-CoreWindow* Ctrl::GetWindow() {
+TopWindow* Ctrl::GetTopWindow() {
 	Ctrl* c = this;
 	while (c) {
-		CoreWindow* cw = dynamic_cast<CoreWindow*>(c);
-		if (cw)
-			return cw;
-		c = c->GetParent();
+		Ctrl* par = c->GetParent();
+		if (!par) {
+			TopWindow* tw = dynamic_cast<TopWindow*>(c);
+			return tw;
+		}
+		c = par;
 	}
-	return NULL;
+	return 0;
 }
-
-Windows* Ctrl::GetWindows() {
-	Ctrl* c = this;
-	while (c) {
-		Windows* w = dynamic_cast<Windows*>(c);
-		if (w)
-			return w;
-		c = c->GetParent();
-	}
-	return NULL;
-}
-
-#endif
 
 bool Ctrl::IsShown() const {
 	return !hidden;
@@ -960,10 +947,6 @@ void Ctrl::DeepMouseLeave() {
 }
 
 
-void Ctrl::CloseTopCtrls() {
-	TODO
-}
-
 Rect Ctrl::GetWorkArea() const {
 	TODO
 }
@@ -984,6 +967,14 @@ bool Ctrl::ReleaseCtrlCapture() {
 		}
 	}
 	return false;*/
+}
+
+Ctrl* Ctrl::GetCaptureCtrl() {
+	TODO
+}
+
+Image Ctrl::DefaultCursor() {
+	TODO
 }
 
 

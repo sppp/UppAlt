@@ -9,7 +9,10 @@ library
 file
 	Copying,
 	SDL2GUI3DAlt.h,
+	After.h,
 	SDL2GUI3DAlt.cpp,
+	Render.cpp,
 	"Gui Platform" readonly separator,
-	DrawBackend.h;
+	DrawBackend.h,
+	DrawBackend.cpp;
 

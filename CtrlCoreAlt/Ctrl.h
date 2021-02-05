@@ -210,9 +210,14 @@ protected:
 	bool DeepMouse(int mouse_code, const Point& pt, dword keyflags);
 	bool DeepMouseWheel(const Point& pt, int zdelta, dword keyflags);
 	void DeepMouseLeave();
-	void SetFrameRect0(const Rect& r) {this->frame_r = r;}
 	void Refresh0() {Refresh();}
 	void Layout0() {Layout();}
+	
+protected:
+	friend struct SDL2GUI3DAlt;
+	
+	void SetFrameRect0(const Rect& r) {this->frame_r = r;}
+	
 public:
 	typedef Ctrl CLASSNAME;
 	Ctrl();
@@ -237,9 +242,7 @@ public:
 	void DeepLayout();
 	
 	Ctrl* GetParent();
-	TopWindow* GetTopWindow() const;
-//	CoreWindow* GetWindow();
-//	Windows* GetWindows();
+	TopWindow* GetTopWindow();
 	int GetCount() const {return children.GetCount();}
 	Ctrl* operator[](int i) {return children[i];}
 	

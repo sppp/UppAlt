@@ -6,9 +6,12 @@
 
 NAMESPACE_UPP
 
+struct VirtualGui3DAlt;
 
 class SystemDraw : public DrawProxy {
 public:
+	VirtualGui3DAlt* gui = 0;
+	
 	bool    CanSetSurface()                         { return false; }
 	static void Flush()                             {}
 };

@@ -16,6 +16,7 @@
 
 NAMESPACE_UPP
 
+struct SDL2GUI3DAlt_MachineData;
 
 struct SDL2GUI3DAlt : VirtualGui3DAlt {
     SDL_Window* win = NULL;
@@ -27,7 +28,8 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	bool is_sizeable = false;
 	bool mouse_captured = false;
 	Sppp::Shader simple_shader;
-	
+	Size screen_sz;
+	SDL2GUI3DAlt_MachineData* data = 0;
 	
 	virtual Size        GetSize();
 	virtual dword       GetMouseButtons();
@@ -55,11 +57,24 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	void Maximize(bool b=true);
 	bool Poll(CtrlEvent& e);
 	bool IsCaptured() const {return mouse_captured;}
+	bool IsOpen() const {return is_open;}
+	
+	bool InitMachine();
+	void Render(bool do_render);
+	void RenderFrame();
+	void RenderCamera();
+	void RenderWindows();
+	void SwapBuffer();
+	void RefreshGL();
 	
 	SDL2GUI3DAlt();
 	~SDL2GUI3DAlt();
+	
+	static SDL2GUI3DAlt* Current();
+	
 };
 
+inline bool IsGuiOpen() {return SDL2GUI3DAlt::Current()->IsOpen();}
 
 END_UPP_NAMESPACE
 

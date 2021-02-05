@@ -15,7 +15,7 @@ struct SysFont {
 	SysFont(RawSysFont* f) : raw(f) {}
 	~SysFont() {Clear();}
 	
-	void Clear() {if (raw) TTF_CloseFont(raw); raw = 0;}
+	void Clear();
 	bool IsEmpty() const {return raw == 0;}
 	
 	RawSysFont* GetRaw() const {return raw;}
@@ -28,7 +28,7 @@ struct SysImage {
 	SysImage() {}
 	SysImage(RawSysImage* raw) : raw(raw) {}
 	~SysImage() {Clear();}
-	void Clear() {if (raw) SDL_FreeSurface(raw); raw = 0;}
+	void Clear();
 	int GetWidth() const {if (raw) return raw->w; return 0;}
 	int GetHeight() const {if (raw) return raw->h; return 0;}
 	

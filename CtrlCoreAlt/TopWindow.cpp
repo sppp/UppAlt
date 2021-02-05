@@ -3,19 +3,8 @@
 
 NAMESPACE_UPP
 
-TopWindow::TopWindow() {
-	
-}
-
-void TopWindow::SetFrameRect(const Rect& r) {
-	TODO
-}
-
-void TopWindow::Title(const String& title) {
-	TODO
-}
-
 int TopWindow::Run(bool appmodal) {
+	Ctrl::Invalidate();
 	EventLoop(this);
 	return GetExitCode();
 	

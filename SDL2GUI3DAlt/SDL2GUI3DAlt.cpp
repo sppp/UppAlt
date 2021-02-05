@@ -1,14 +1,63 @@
-#include "SDL2GUI3DAlt.h"
+#include <EcsLib/EcsLib.h>
+#include "After.h"
 
 NAMESPACE_UPP
 
+
+
+
+
+SDL2GUI3DAlt_MachineData __sdl2data;
+SDL2GUI3DAlt* __current_SDL2GUI3DAlt;
+
+
 SDL2GUI3DAlt::SDL2GUI3DAlt() {
-	
+	sysdraw.gui = this;
+	__current_SDL2GUI3DAlt = this;
+	data = &__sdl2data;
 }
 
 SDL2GUI3DAlt::~SDL2GUI3DAlt() {
 	if (is_open)
 		Quit();
+}
+
+SDL2GUI3DAlt* SDL2GUI3DAlt::Current() {
+	return __current_SDL2GUI3DAlt;
+}
+
+bool SDL2GUI3DAlt::InitMachine() {
+	Machine& mach = GetMachine();
+	
+	try {
+	    mach.Add<WindowSystem>();
+	    #ifdef flagOPENVR
+	    mach.Add<OpenVR>();
+	    #endif
+	    
+	    EntityStore& ents = *mach.Add<EntityStore>();
+	    mach.Add<ComponentStore>();
+	    mach.Add<HolographicScene>();
+	    mach.Add<EasingSystem>();
+	    mach.Add<SoundSystem>();
+	    mach.Add<ControllerSystem>();
+	    mach.Add<MotionControllerSystem>();
+	    mach.Add<WorldLogicSystem>();
+	    
+	    /*bool physics = false;
+	    if (physics)
+			mach.Add<PhysicsSystem>();*/
+	
+	    mach.Start();
+	    
+		ents.Create<Camera>();
+	}
+	catch (Exc e) {
+		LOG("InitMachine error: " << e);
+		return false;
+	}
+	
+	return true;
 }
 
 bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title) {
@@ -23,8 +72,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title) {
 	
 	
 	// Window
-	int w = rect.Width();
-	int h = rect.Height();
+	screen_sz = rect.GetSize();
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	uint32 flags = SDL_WINDOW_OPENGL;
 	//if (full_screen)
@@ -33,7 +81,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title) {
 		flags |= SDL_WINDOW_RESIZABLE;
 	if (is_maximized)
 		flags |= SDL_WINDOW_MAXIMIZED;
-	if (SDL_CreateWindowAndRenderer(w, h, flags, &win, &rend) == -1)
+	if (SDL_CreateWindowAndRenderer(screen_sz.cx, screen_sz.cy, flags, &win, &rend) == -1)
         return false;
     
     
@@ -77,6 +125,10 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title) {
 	// Load shaders
 	simple_shader.Load(FindLocalFile("shaders" DIR_SEPS "model_loading.vs"), FindLocalFile("shaders" DIR_SEPS "model_loading.fs"));
 	
+	
+	// Init ECS machine
+	if (!InitMachine())
+		return false;
 	
 	is_open = true;
     return true;
@@ -132,19 +184,19 @@ bool SDL2GUI3DAlt::Poll(CtrlEvent& e) {
 				else
 					DeepMouseLeave();
 			}
-			else if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				w = event.window.data1;
-				h = event.window.data2;
-				SetFrameRect0(RectC(0, 0, w, h));
-				SetContentRect(RectC(0, 0, w, h));
-				SetPendingLayout();
-				SetPendingEffectRedraw();
-				SetPendingRedraw();
-			}
 			else*/
 			if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
 				e.type = EVENT_SHUTDOWN;
 				return true;
+			}
+			else if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+				screen_sz.cx = event.window.data1;
+				screen_sz.cy = event.window.data2;
+				/*SetFrameRect0(RectC(0, 0, screen_sz.cx, screen_sz.cy));
+				SetContentRect(RectC(0, 0, screen_sz.cx, screen_sz.cyh));
+				SetPendingLayout();
+				SetPendingEffectRedraw();
+				SetPendingRedraw();*/
 			}
 			break;
 		
