@@ -258,7 +258,9 @@ public:
 
 
 
-
+inline Callback callback(void (*fn)()) {
+	return Callback(new StaticCaller(fn));
+}
 
 template <class T>
 inline Callback callback(void (T::* fn)(), T* obj) {

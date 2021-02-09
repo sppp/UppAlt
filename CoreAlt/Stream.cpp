@@ -21,7 +21,7 @@ void StdLogSetup(dword flags) {
 	s.Clear();
 	
 	if (flags & LOG_FILE) {
-		s.Add(Log());
+		s.Add(LogFile());
 	}
 	if (flags & LOG_COUT) {
 		s.Add(Cout());

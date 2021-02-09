@@ -1,5 +1,23 @@
-#include <SDL2/SDL_ttf.h>
 
+#include <GL/glew.h>
+#ifdef flagOPENVR
+	#include <openvr.h>
+#endif
+#include <GL/gl.h>
+
+#ifdef flagWIN32
+	#include <SDL.h>
+	#include <SDL_ttf.h>
+	#include <SDL_image.h>
+	#include <SDL_opengl.h><
+	#include <SDL_syswm.h><
+#else
+	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_ttf.h>
+	#include <SDL2/SDL_image.h>
+	#include <SDL2/SDL_opengl.h>
+#endif
+#undef main
 
 
 NAMESPACE_UPP
@@ -31,6 +49,9 @@ struct SysImage {
 	void Clear();
 	int GetWidth() const {if (raw) return raw->w; return 0;}
 	int GetHeight() const {if (raw) return raw->h; return 0;}
+	int GetStride() const {return raw && raw->format ? raw->format->BytesPerPixel : 0;}
+	int GetPitch() const {return raw ? raw->pitch : 0;}
+	const unsigned char* GetData() const {return raw ? (const unsigned char*)raw->pixels : 0;}
 	
 };
 

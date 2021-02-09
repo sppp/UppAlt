@@ -21,8 +21,12 @@ void Ctrl::SetDesktopSize(Size sz) {
 
 void Ctrl::EventLoop(Ctrl *ctrl) {
 	bool quit = false;
+	TimeStop t;
+	Sppp::Machine& mach = Sppp::GetMachine();
 	ProcessEvents(&quit);
-	while (!quit && !Thread::IsShutdownThreads()) {
+	while (!quit && !Thread::IsShutdownThreads() && mach.IsRunning()) {
+		double dt = t.ResetSeconds();
+	    mach.Update(dt);
 		//SyncCaret();
 		GuiSleep(20);
 		ProcessEvents(&quit);
@@ -70,13 +74,10 @@ void Ctrl::TimerProc(dword time) {
 }
 
 void Ctrl::DoPaint() {
-	if(invalid) {
-		invalid = false;
-		SystemDraw& draw = VirtualGui3DAltPtr->BeginDraw();
-		PaintScene(draw);
-		//PaintCaretCursor(draw);
-		VirtualGui3DAltPtr->CommitDraw();
-	}
+	SystemDraw& draw = VirtualGui3DAltPtr->BeginDraw();
+	PaintScene(draw);
+	//PaintCaretCursor(draw);
+	VirtualGui3DAltPtr->CommitDraw();
 }
 
 void Ctrl::Invalidate() {
@@ -84,7 +85,8 @@ void Ctrl::Invalidate() {
 }
 
 void Ctrl::PaintScene(SystemDraw& draw) {
-	dynamic_cast<SDL2GUI3DAlt*>(draw.gui)->Render(true);
+	dynamic_cast<SDL2GUI3DAlt*>(draw.gui)->Render(invalid);
+	invalid = false;
 }
 
 END_UPP_NAMESPACE

@@ -3,6 +3,9 @@
 
 NAMESPACE_UPP
 
+Sppp::Windows* Ctrl::wm;
+
+
 Sppp::CoreWindow* Ctrl::GetWindow() {
 	TopWindow* tw = GetTopWindow();
 	return tw ? tw->GetWindow() : 0;
@@ -33,11 +36,8 @@ CoreWindow* Ctrl::GetWindow() {
 #endif
 
 Sppp::Windows* Ctrl::GetWindows() {
-	/*TopWindow* tw = GetTopWindow();
-	if (tw)
-		return tw->GetWindows();
-	return 0;*/
-	TODO
+	ASSERT(wm);
+	return wm;
 }
 
 END_UPP_NAMESPACE

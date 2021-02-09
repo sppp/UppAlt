@@ -1,18 +1,10 @@
 #ifndef _SDL2GUI3DAlt_SDL2GUI3DAlt_h_
 #define _SDL2GUI3DAlt_SDL2GUI3DAlt_h_
 
-#include <GL/glew.h>
-#ifdef flagOPENVR
-	#include <openvr.h>
-#endif
-#include <GL/gl.h>
-
 
 #include <CtrlLibAlt/CtrlLib.h>
 #include <GL/GL.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 
 NAMESPACE_UPP
 
@@ -60,6 +52,7 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	bool IsOpen() const {return is_open;}
 	
 	bool InitMachine();
+	bool DeinitMachine();
 	void Render(bool do_render);
 	void RenderFrame();
 	void RenderCamera();
@@ -83,17 +76,16 @@ END_UPP_NAMESPACE
 void GuiMainFn_(); \
 \
 extern "C" int main(int argc, char *argv[]) {\
-	UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
-	SDL2GUI3DAlt gui; \
-	if (gui.Create(Rect(0, 0, 1920, 1000), "Virtual Gui Test")) { \
-		VirtualGui3DAltPtr = &gui; \
-		Ctrl::InitFB(); \
-		Ctrl::SetDesktopSize(gui.GetSize()); \
+	::UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
+	Sppp::SDL2GUI3DAlt gui; \
+	if (gui.Create(::UPP::Rect(0, 0, 1920, 1000), "Virtual Gui Test")) { \
+		::UPP::Ctrl::InitFB(); \
+		::UPP::Ctrl::SetDesktopSize(gui.GetSize()); \
 		GuiMainFn_(); \
-		Ctrl::ExitFB(); \
-		Ctrl::CloseTopCtrls(); \
+		::UPP::Ctrl::ExitFB(); \
+		::UPP::Ctrl::CloseTopCtrls(); \
 	} \
-	return ::Upp::AppExit__(); \
+	return ::UPP::AppExit__(); \
 } \
 \
 void GuiMainFn_()

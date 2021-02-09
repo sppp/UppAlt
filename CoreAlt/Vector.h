@@ -146,8 +146,10 @@ public:
 		void operator=(const Iterator0& it) {kit = it.kit;}
 		Iterator0& operator++() {kit += I; return *this;}
 		Iterator0 operator++(int i) {Iterator ret = *this; kit += I; return ret;}
+		void operator--() {kit -= I;}
 		void operator--(int i) {kit -= I;}
-		void operator+=(int i) {kit += i;}
+		void operator+=(int i) {kit += I * i;}
+		void operator-=(int i) {kit -= I * i;}
 		P* operator->() const {return kit;}
 		P* Get() const {return kit;}
 		operator P*() const {return kit;}
@@ -437,8 +439,12 @@ public:
 		void operator=(const Iterator0& it) {kit = it.kit;}
 		Iterator0& operator++() {kit += I; return *this;}
 		Iterator0 operator++(int i) {Iterator ret = *this; kit += I; return ret;}
+		void operator--() {kit -= I;}
 		void operator--(int i) {kit -= I;}
-		void operator+=(int i) {kit += i;}
+		void operator+=(int i) {kit += I * i;}
+		void operator-=(int i) {kit -= I * i;}
+		Iterator0 operator-(int i) const {Iterator0 o(*this); o.kit -= I * i; return o;}
+		Iterator0 operator+(int i) const {Iterator0 o(*this); o.kit += I * i; return o;}
 		K* operator->() const {return kit.Get();}
 		K* Get() const {return *kit.Get();}
 		operator K*() const {return Get();}
@@ -668,6 +674,8 @@ public:
 		void operator++(int i) {kit++; vit++;}
 		void operator--(int i) {kit--; vit--;}
 		void operator+=(int i) {kit += i; vit += i;}
+		Iterator operator-(int i) const {Iterator o(*this); o.kit -= i; o.vit -= i; return o;}
+		Iterator operator+(int i) const {Iterator o(*this); o.kit += i; o.vit += i; return o;}
 		Ret operator->() {return Get();}
 		Ret Get() const {return Ret(*kit.Get(), *vit.Get());}
 		V& GetValue() const {return Get().second;}

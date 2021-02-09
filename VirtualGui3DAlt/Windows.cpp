@@ -67,6 +67,7 @@ Image& WindowsImg::ew() {
 
 
 Windows::Windows() {
+	Ctrl::SetWindows(this);
 	win_counter = 0;
 	maximize_all = false;
 	active_pos = -1;
@@ -100,7 +101,7 @@ void Windows::AddWindow(CoreWindow& sw) {
 	active_id = id;
 	if (wins.Find(prev_active_id) != -1)
 		wins.Get(prev_active_id)->Refresh();
-	sw.tw->TopWindow::Init(this, &sw, id);
+	sw.tw->TopWindow::Init(&sw, id);
 	WhenActiveWindowChanges();
 	String title = sw.tw->GetTitle();
 	sw.Title(title.GetCount() ? title : "Unnamed");

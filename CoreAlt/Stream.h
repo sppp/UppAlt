@@ -354,6 +354,7 @@ public:
 	}
 	int64 GetCursor() override { return cursor; }
 	int64 GetSize() const override {return cursor;}
+	void Flush() override {for (Stream* s : streams) s->Flush();};
 
 	void Seek(int64 i) override {}
 	String GetResult() const {return String();}

@@ -715,6 +715,7 @@ void AppInit__(int argc, const char** argv, const char** environ) {
 	::Upp::ParseCommandLine(argc, argv);
 	#endif
 	
+	::Upp::StdLogSetup(LOG_FILE);
 	::Upp::ReadCoreCmdlineArgs();
 	::Upp::RunInitBlocks();
 	

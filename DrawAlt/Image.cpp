@@ -18,7 +18,7 @@ void Image::MakeSysAccel() {
 
 
 Image StreamRaster::LoadFileAny(String path) {
-	TODO
+	return Image(IMG_Load(path.Begin()));
 }
 
 NAMESPACE_UPP_END

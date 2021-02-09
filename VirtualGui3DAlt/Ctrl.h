@@ -1,4 +1,6 @@
 //$ class Ctrl {
+	static Sppp::Windows* wm;
+	
 	static bool           invalid;
 	
 	static uint32 prev_ticks;
@@ -16,4 +18,7 @@ public:
 	
 	Sppp::CoreWindow* GetWindow();
 	static Sppp::Windows* GetWindows();
+	
+	static void SetWindows(Sppp::Windows* wm) {ASSERT(!Ctrl::wm); Ctrl::wm = wm;}
+	
 //$ };

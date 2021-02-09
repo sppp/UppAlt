@@ -99,7 +99,7 @@ void SDL2GUI3DAlt::RenderCamera() {
     simple_shader.SetInt("texture1", 0);
     simple_shader.SetInt("texture2", 1);
     
-    mat4 projection = perspective(GetRadians(45.0f), (float)screen_sz.cx / (float)screen_sz.cy, 0.1f, 100.0f);
+    mat4 projection = perspective(GetRadians(100.0f), (float)screen_sz.cx / (float)screen_sz.cy, 0.1f, 100.0f);
     simple_shader.SetMat4("projection", projection);
     
     // camera/view transformation

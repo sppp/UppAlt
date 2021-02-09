@@ -4,12 +4,11 @@
 NAMESPACE_UPP
 
 
-TopWindow::TopWindow() : wm(0), id(-1) {
+TopWindow::TopWindow() : id(-1) {
 	
 }
 
-void TopWindow::Init(Sppp::Windows* wm, Sppp::CoreWindow* cw, int id) {
-	this->wm = wm;
+void TopWindow::Init(Sppp::CoreWindow* cw, int id) {
 	this->cw = cw;
 	this->id = id;
 	

@@ -60,7 +60,17 @@ bool SDL2GUI3DAlt::InitMachine() {
 	return true;
 }
 
+bool SDL2GUI3DAlt::DeinitMachine() {
+	Machine& mach = GetMachine();
+	
+	mach.Stop();
+	
+	return true;
+}
+
 bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title) {
+	ASSERT(!VirtualGui3DAltPtr);
+	VirtualGui3DAltPtr = this;
 	
 	// SDL
 	uint32 sdl_flags =	SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS |
@@ -136,6 +146,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title) {
 
 void SDL2GUI3DAlt::Quit() {
 	GetDrawCommandCache().Clear();
+	DeinitMachine();
     TTF_Quit();
     SDL_Quit();
     is_open = false;
@@ -338,7 +349,10 @@ dword       SDL2GUI3DAlt::GetMouseButtons() {TODO}
 dword       SDL2GUI3DAlt::GetModKeys() {TODO}
 bool        SDL2GUI3DAlt::IsMouseIn() {TODO}
 void        SDL2GUI3DAlt::SetMouseCursor(const Image& image) {TODO}
-void        SDL2GUI3DAlt::CommitDraw() {TODO}
+
+void        SDL2GUI3DAlt::CommitDraw() {
+	SwapBuffer();
+}
 
 
 
