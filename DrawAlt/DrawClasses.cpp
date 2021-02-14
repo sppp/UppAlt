@@ -3,39 +3,63 @@
 NAMESPACE_UPP
 
 
+
+
 void Draw::DrawLine(int x1, int y1, int x2, int y2, int width, Color color) {
-	TODO
+	DrawLineOp(x1, y1, x2, y2, width, color);
 }
 
 void Draw::DrawText(int x, int y, const String& text, Font font, Color ink, const int *dx) {
-	TODO
+	WString ws(ToWString(text));
+	DrawTextOp(x, y, 0, ws.Begin(), font, ink, 0, dx);
 }
 
 void Draw::DrawRect(int x, int y, int cx, int cy, Color color) {
-	TODO
+	DrawRectOp(x, y, cx, cy, color);
 }
 
 void Draw::DrawRect(const Rect& rect, Color color) {
-	TODO
+	DrawRectOp(rect.left, rect.top, rect.Width(), rect.Height(), color);
 }
 
 void Draw::DrawPolyline(const Point *vertices, int count, int width, Color color, Color doxor) {
-	TODO
+	DrawPolyPolylineOp(vertices, count, &count, 1, width, color, doxor);
 }
 
 void Draw::DrawPolyline(const Vector<Point>& vertices, int width, Color color, Color doxor) {
-	TODO
+	int count = vertices.GetCount();
+	DrawPolyPolylineOp(vertices.Begin(), count, &count, 1, width, color, doxor);
 }
 
+
+
+
+
+Size DrawProxy::GetPageSize() const {
+	return ptr->GetPageSize();
+}
+
+void DrawProxy::DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color) {
+	ptr->DrawLineOp(x1, y1, x2, y2, width, color);
+}
+
+void DrawProxy::DrawRectOp(int x, int y, int cx, int cy, Color color) {
+	ptr->DrawRectOp(x, y, cx, cy, color);
+}
+
+void DrawProxy::DrawTextOp(int x, int y, int angle, const wchar *text, Font font, Color ink, int n, const int *dx) {
+	ptr->DrawTextOp(x, y, angle, text, font, ink, n, dx);
+}
+
+void DrawProxy::DrawPolyPolylineOp(const Point *vertices, int vertex_count, const int *counts,
+		int count_count, int width, Color color, Color doxor) {
+	ptr->DrawPolyPolylineOp(vertices, vertex_count, counts, count_count, width, color, doxor);
+}
 
 #if 0
 
 dword DrawProxy::GetInfo() const {
 	return ptr->GetInfo();
-}
-
-Size DrawProxy::GetPageSize() const {
-	return ptr->GetPageSize();
 }
 
 void DrawProxy::StartPage() {
@@ -82,10 +106,6 @@ Rect DrawProxy::GetPaintRect() const {
 	return ptr->GetPaintRect();
 }
 
-void DrawProxy::DrawRectOp(int x, int y, int cx, int cy, Color color) {
-	ptr->DrawRectOp(x, y, cx, cy, color);
-}
-
 void DrawProxy::SysDrawImageOp(int x, int y, const Image& img, Color color) {
 	ptr->SysDrawImageOp(x, y, img, color);
 }
@@ -102,15 +122,6 @@ void DrawProxy::DrawDataOp(int x, int y, int cx, int cy, const String& data, con
 	ptr->DrawDataOp(x, y, cx, cy, data, id);
 }
 
-void DrawProxy::DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color) {
-	ptr->DrawLineOp(x1, y1, x2, y2, width, color);
-}
-
-void DrawProxy::DrawPolyPolylineOp(const Point *vertices, int vertex_count, const int *counts,
-		int count_count, int width, Color color, Color doxor) {
-	ptr->DrawPolyPolylineOp(vertices, vertex_count, counts, count_count, width, color, doxor);
-}
-
 void DrawProxy::DrawPolyPolyPolygonOp(const Point *vertices, int vertex_count, const int *subpolygon_counts,
 		int scc, const int *disjunct_polygon_counts, int dpcc, Color color,
 		int width, Color outline, uint64 pattern, Color doxor) {
@@ -124,10 +135,6 @@ void DrawProxy::DrawArcOp(const Rect& rc, Point start, Point end, int width, Col
 
 void DrawProxy::DrawEllipseOp(const Rect& r, Color color, int pen, Color pencolor) {
 	ptr->DrawEllipseOp(r, color, pen, pencolor);
-}
-
-void DrawProxy::DrawTextOp(int x, int y, int angle, const wchar *text, Font font, Color ink, int n, const int *dx) {
-	ptr->DrawTextOp(x, y, angle, text, font, ink, n, dx);
 }
 
 void DrawProxy::DrawDrawingOp(const Rect& target, const Drawing& w) {

@@ -232,7 +232,7 @@ public:
 	static Image OverrideCursor(const Image& m);
 	static Image DefaultCursor();
 	
-	void EventLoop(Ctrl *ctrl);
+	//void EventLoop(Ctrl *ctrl);
 	
 	void Add(Ctrl& c);
 	void AddFrame(CtrlFrame& c) {c.ctrl = this; frames.Add(&c); SetPendingRedraw();}
@@ -407,15 +407,6 @@ public:
 	
 	
 	
-};
-
-enum {
-	EVENT_INVALID,
-	EVENT_SHUTDOWN,
-};
-
-struct CtrlEvent {
-	int type = 0;
 };
 
 class EmptySpaceCtrl : public Ctrl {

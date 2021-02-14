@@ -27,7 +27,8 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	virtual dword       GetMouseButtons();
 	virtual dword       GetModKeys();
 	virtual bool        IsMouseIn();
-	virtual bool        ProcessEvent(bool *quit);
+	//virtual bool        ProcessEvent(bool *quit);
+	virtual bool        Poll(Upp::CtrlEvent& e);
 	virtual void        WaitEvent(int ms);
 	virtual bool        IsWaitingEvent();
 	virtual void        WakeUpGuiThread();
@@ -44,10 +45,9 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 
 	void Attach(SDL_Window *win, SDL_GLContext glcontext);
 	void Detach();
-	bool Create(const Rect& rect, const char *title);
+	bool Create(const Rect& rect, const char *title, bool init_ecs);
 	void Destroy();
 	void Maximize(bool b=true);
-	bool Poll(CtrlEvent& e);
 	bool IsCaptured() const {return mouse_captured;}
 	bool IsOpen() const {return is_open;}
 	
@@ -72,23 +72,23 @@ inline bool IsGuiOpen() {return SDL2GUI3DAlt::Current()->IsOpen();}
 END_UPP_NAMESPACE
 
 
-#define GUI_APP_MAIN \
+#define GUI_APP_MAIN_(init_ecs) \
 void GuiMainFn_(); \
 \
 extern "C" int main(int argc, char *argv[]) {\
 	::UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
 	Sppp::SDL2GUI3DAlt gui; \
-	if (gui.Create(::UPP::Rect(0, 0, 1920, 1000), "Virtual Gui Test")) { \
-		::UPP::Ctrl::InitFB(); \
-		::UPP::Ctrl::SetDesktopSize(gui.GetSize()); \
+	if (gui.Create(::UPP::Rect(0, 0, 1920, 1000), "Virtual Gui Test", init_ecs)) { \
 		GuiMainFn_(); \
-		::UPP::Ctrl::ExitFB(); \
-		::UPP::Ctrl::CloseTopCtrls(); \
 	} \
 	return ::UPP::AppExit__(); \
 } \
 \
 void GuiMainFn_()
+
+
+#define GUI_APP_MAIN			GUI_APP_MAIN_(true)
+#define RENDER_APP_MAIN			GUI_APP_MAIN_(false)
 
 
 #endif

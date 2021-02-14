@@ -3,24 +3,14 @@
 
 NAMESPACE_UPP
 
-uint32 Ctrl::prev_ticks;
-bool Ctrl::invalid;
-
-void Ctrl::InitFB() {
-	prev_ticks = VirtualGui3DAltPtr->GetTickCount();
-	invalid = false;
-}
-
-void Ctrl::ExitFB() {
-	
-}
+#if 0
 
 void Ctrl::SetDesktopSize(Size sz) {
 	LOG("todo: SetDesktopSize " << sz.ToString());
 }
 
 void Ctrl::EventLoop(Ctrl *ctrl) {
-	bool quit = false;
+	/*bool quit = false;
 	TimeStop t;
 	Sppp::Machine& mach = Sppp::GetMachine();
 	ProcessEvents(&quit);
@@ -30,7 +20,8 @@ void Ctrl::EventLoop(Ctrl *ctrl) {
 		//SyncCaret();
 		GuiSleep(20);
 		ProcessEvents(&quit);
-	}
+	}*/
+	TODO
 }
 
 void Ctrl::GuiSleep(int ms) {
@@ -64,14 +55,14 @@ bool Ctrl::ProcessEvent(bool *quit) {
 	return ret;
 }
 
-void Ctrl::TimerProc(dword time) {
+/*void Ctrl::TimerProc(dword time) {
 	uint32 ticks = SDL_GetTicks();
 	uint32 diff = ticks - prev_ticks;
 	if (diff > 0) {
 		AddGlobalTicks(diff);
 		prev_ticks = ticks;
 	}
-}
+}*/
 
 void Ctrl::DoPaint() {
 	SystemDraw& draw = VirtualGui3DAltPtr->BeginDraw();
@@ -80,13 +71,23 @@ void Ctrl::DoPaint() {
 	VirtualGui3DAltPtr->CommitDraw();
 }
 
-void Ctrl::Invalidate() {
-	invalid = true;
-}
-
 void Ctrl::PaintScene(SystemDraw& draw) {
 	dynamic_cast<SDL2GUI3DAlt*>(draw.gui)->Render(invalid);
 	invalid = false;
+}
+
+#endif
+
+void Ctrl::Invalidate() {
+	using namespace Sppp;
+	static Shared<WindowSystem> win;
+	if (!win) {
+		win = GetMachine().Get<WindowSystem>();
+		if (win)
+			win->Invalidate();
+	}
+	else
+		win->Invalidate();
 }
 
 END_UPP_NAMESPACE

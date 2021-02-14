@@ -269,4 +269,33 @@ void SDL2GUI3DAlt::RefreshGL() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+void SystemDraw::DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color) {
+	TODO
+}
+
+void SystemDraw::DrawRectOp(int x, int y, int cx, int cy, Color color) {
+	TODO
+}
+
+void SystemDraw::DrawTextOp(int x, int y, int angle, const wchar *text, Font font,
+	                        Color ink, int n, const int *dx) {
+	TODO
+}
+
+void SystemDraw::DrawPolyPolylineOp(const Point *vertices, int vertex_count,
+                                    const int *counts, int count_count,
+                                    int width, Color color, Color doxor) {
+	TODO
+}
+
 END_UPP_NAMESPACE

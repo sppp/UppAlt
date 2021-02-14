@@ -638,6 +638,12 @@ void CoreWindow::DrawEnd(DrawCommand& cmd) {
 	window_shader.SetMat4("offset", offset.Top());
 }
 
+void CoreWindow::Wait() {
+	TODO
+}
+
+
+
 
 
 

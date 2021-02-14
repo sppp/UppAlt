@@ -30,6 +30,8 @@ bool SDL2GUI3DAlt::InitMachine() {
 	Machine& mach = GetMachine();
 	
 	try {
+	    mach.Add<EventSystem>();
+	    mach.Add<RenderingSystem>();
 	    mach.Add<WindowSystem>();
 	    #ifdef flagOPENVR
 	    mach.Add<OpenVR>();
@@ -61,14 +63,12 @@ bool SDL2GUI3DAlt::InitMachine() {
 }
 
 bool SDL2GUI3DAlt::DeinitMachine() {
-	Machine& mach = GetMachine();
-	
-	mach.Stop();
+	GetMachine().SetNotRunning();
 	
 	return true;
 }
 
-bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title) {
+bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	ASSERT(!VirtualGui3DAltPtr);
 	VirtualGui3DAltPtr = this;
 	
@@ -137,7 +137,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title) {
 	
 	
 	// Init ECS machine
-	if (!InitMachine())
+	if (init_ecs && !InitMachine())
 		return false;
 	
 	is_open = true;
@@ -172,15 +172,15 @@ uint32 SDL2GUI3DAlt::GetTickCount() {
 	return SDL_GetTicks();
 }
 
-bool SDL2GUI3DAlt::ProcessEvent(bool *quit) {
+/*bool SDL2GUI3DAlt::ProcessEvent(bool *quit) {
 	CtrlEvent e;
 	Poll(e);
 	if (e.type == EVENT_SHUTDOWN)
 		*quit = true;
 	return false;
-}
+}*/
 
-bool SDL2GUI3DAlt::Poll(CtrlEvent& e) {
+bool SDL2GUI3DAlt::Poll(Upp::CtrlEvent& e) {
 	SDL_Event event;
 	
 	// Process the events

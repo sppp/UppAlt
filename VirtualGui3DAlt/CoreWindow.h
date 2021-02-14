@@ -175,6 +175,7 @@ public:
 	void FocusEvent();
 	void ToggleMaximized() {if (IsMaximized()) Restore(); else Maximize();}
 	bool IsPendingPartialRedraw() const {return pending_partial_redraw;}
+	void Wait();
 	
 	void SetFrameRect(const Rect& r) override;
 	bool Redraw(bool only_pending) override;

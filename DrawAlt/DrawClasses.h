@@ -21,6 +21,7 @@ class Draw : NoCopy {
 	
 public:
 	
+	//Draw(){}
 	virtual ~Draw() {}
 	
 	void DrawLine(int x1, int y1, int x2, int y2, int width = 0, Color color = DefaultInk());
@@ -35,6 +36,15 @@ public:
 	void DrawPolyline(const Vector<Point>& vertices,
 		              int width = 0, Color color = DefaultInk(), Color doxor = Null);
 
+	virtual Size GetPageSize() const = 0;
+	virtual void DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color) = 0;
+	virtual	void DrawRectOp(int x, int y, int cx, int cy, Color color) = 0;
+	virtual void DrawTextOp(int x, int y, int angle, const wchar *text, Font font,
+		                    Color ink, int n, const int *dx) = 0;
+	virtual void DrawPolyPolylineOp(const Point *vertices, int vertex_count,
+	                                const int *counts, int count_count,
+	                                int width, Color color, Color doxor) = 0;
+	
 	#if 0
 	
 	enum {
@@ -48,7 +58,6 @@ public:
 
 	virtual dword GetInfo() const = 0;
 
-	virtual Size GetPageSize() const;
 	virtual void StartPage();
 	virtual void EndPage();
 
@@ -62,16 +71,11 @@ public:
 	virtual bool IsPaintingOp(const Rect& r) const = 0;
 	virtual Rect GetPaintRect() const;
 
-	virtual	void DrawRectOp(int x, int y, int cx, int cy, Color color) = 0;
 	virtual void SysDrawImageOp(int x, int y, const Image& img, Color color);
 	virtual void SysDrawImageOp(int x, int y, const Image& img, const Rect& src, Color color);
 	virtual void DrawImageOp(int x, int y, int cx, int cy, const Image& img, const Rect& src, Color color);
 	virtual void DrawDataOp(int x, int y, int cx, int cy, const String& data, const char *id);
-	virtual void DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color) = 0;
 
-	virtual void DrawPolyPolylineOp(const Point *vertices, int vertex_count,
-	                                const int *counts, int count_count,
-	                                int width, Color color, Color doxor) = 0;
 	virtual void DrawPolyPolyPolygonOp(const Point *vertices, int vertex_count,
 	                                   const int *subpolygon_counts, int scc,
 	                                   const int *disjunct_polygon_counts, int dpcc,
@@ -80,8 +84,6 @@ public:
 	virtual void DrawArcOp(const Rect& rc, Point start, Point end, int width, Color color) = 0;
 
 	virtual void DrawEllipseOp(const Rect& r, Color color, int pen, Color pencolor) = 0;
-	virtual void DrawTextOp(int x, int y, int angle, const wchar *text, Font font,
-		                    Color ink, int n, const int *dx) = 0;
 	virtual void DrawDrawingOp(const Rect& target, const Drawing& w);
 	virtual void DrawPaintingOp(const Rect& target, const Painting& w);
 	
@@ -234,14 +236,26 @@ protected:
 
 
 struct DrawProxy : Draw {
-	Draw *ptr;
+	Draw *ptr = 0;
 	
 	void SetTarget(Draw *w) { ptr = w; }
+	
+	
+	DrawProxy() {}
+	DrawProxy(Draw& d) : ptr(&d) {}
+	
+	virtual Size GetPageSize() const;
+	virtual void DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color);
+	virtual	void DrawRectOp(int x, int y, int cx, int cy, Color color);
+	virtual void DrawTextOp(int x, int y, int angle, const wchar *text, Font font,
+		                    Color ink, int n, const int *dx);
+	virtual void DrawPolyPolylineOp(const Point *vertices, int vertex_count,
+	                                const int *counts, int count_count,
+	                                int width, Color color, Color doxor);
 	
 	#if 0
 	virtual dword GetInfo() const;
 
-	virtual Size GetPageSize() const;
 	virtual void StartPage();
 	virtual void EndPage();
 
@@ -255,16 +269,11 @@ struct DrawProxy : Draw {
 	virtual bool IsPaintingOp(const Rect& r) const;
 	virtual Rect GetPaintRect() const;
 
-	virtual	void DrawRectOp(int x, int y, int cx, int cy, Color color);
 	virtual void SysDrawImageOp(int x, int y, const Image& img, Color color);
 	virtual void SysDrawImageOp(int x, int y, const Image& img, const Rect& src, Color color);
 	virtual void DrawImageOp(int x, int y, int cx, int cy, const Image& img, const Rect& src, Color color);
 	virtual void DrawDataOp(int x, int y, int cx, int cy, const String& data, const char *id);
-	virtual void DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color);
 
-	virtual void DrawPolyPolylineOp(const Point *vertices, int vertex_count,
-	                                const int *counts, int count_count,
-	                                int width, Color color, Color doxor);
 	virtual void DrawPolyPolyPolygonOp(const Point *vertices, int vertex_count,
 	                                   const int *subpolygon_counts, int scc,
 	                                   const int *disjunct_polygon_counts, int dpcc,
@@ -273,8 +282,6 @@ struct DrawProxy : Draw {
 	virtual void DrawArcOp(const Rect& rc, Point start, Point end, int width, Color color);
 
 	virtual void DrawEllipseOp(const Rect& r, Color color, int pen, Color pencolor);
-	virtual void DrawTextOp(int x, int y, int angle, const wchar *text, Font font,
-		                    Color ink, int n, const int *dx);
 	virtual void DrawDrawingOp(const Rect& target, const Drawing& w);
 	virtual void DrawPaintingOp(const Rect& target, const Painting& w);
 	
