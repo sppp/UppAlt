@@ -14,12 +14,13 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
     SDL_Window* win = NULL;
     SDL_Renderer* rend = NULL;
     SDL_RendererInfo rend_info;
-	SDL_GLContext glcontext;
+	SDL_GLContext glcontext = 0;
 	bool is_open = false;
 	bool is_maximized = false;
 	bool is_sizeable = false;
 	bool mouse_captured = false;
-	Sppp::Shader simple_shader;
+	bool use_opengl = true;
+	//Sppp::Shader simple_shader;
 	Size screen_sz;
 	SDL2GUI3DAlt_MachineData* data = 0;
 	
@@ -36,6 +37,7 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	virtual SystemDraw& BeginDraw();
 	virtual void        CommitDraw();
 	virtual uint32      GetTickCount();
+	virtual void        SetTitle(String title) {SDL_SetWindowTitle(win, title);}
 
 	virtual void        Quit();
 
@@ -43,8 +45,8 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	//GLDraw        gldraw;
 	SystemDraw    sysdraw;
 
-	void Attach(SDL_Window *win, SDL_GLContext glcontext);
-	void Detach();
+	//void Attach(SDL_Window *win, SDL_GLContext glcontext);
+	//void Detach();
 	bool Create(const Rect& rect, const char *title, bool init_ecs);
 	void Destroy();
 	void Maximize(bool b=true);
@@ -57,8 +59,6 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	void RenderFrame();
 	void RenderCamera();
 	void RenderWindows();
-	void SwapBuffer();
-	void RefreshGL();
 	
 	SDL2GUI3DAlt();
 	~SDL2GUI3DAlt();
@@ -78,7 +78,7 @@ void GuiMainFn_(); \
 extern "C" int main(int argc, char *argv[]) {\
 	::UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
 	Sppp::SDL2GUI3DAlt gui; \
-	if (gui.Create(::UPP::Rect(0, 0, 1920, 1000), "Virtual Gui Test", init_ecs)) { \
+	if (gui.Create(::UPP::Rect(0, 0, 800, 600), "Unnamed App", init_ecs)) { \
 		GuiMainFn_(); \
 	} \
 	return ::UPP::AppExit__(); \

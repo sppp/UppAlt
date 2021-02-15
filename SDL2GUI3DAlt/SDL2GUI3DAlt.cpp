@@ -12,9 +12,9 @@ SDL2GUI3DAlt* __current_SDL2GUI3DAlt;
 
 
 SDL2GUI3DAlt::SDL2GUI3DAlt() {
-	sysdraw.gui = this;
 	__current_SDL2GUI3DAlt = this;
 	data = &__sdl2data;
+	use_opengl = false;
 }
 
 SDL2GUI3DAlt::~SDL2GUI3DAlt() {
@@ -30,6 +30,7 @@ bool SDL2GUI3DAlt::InitMachine() {
 	Machine& mach = GetMachine();
 	
 	try {
+	    mach.Add<RegistrySystem>();
 	    mach.Add<EventSystem>();
 	    mach.Add<RenderingSystem>();
 	    mach.Add<WindowSystem>();
@@ -83,8 +84,12 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	
 	// Window
 	screen_sz = rect.GetSize();
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	uint32 flags = SDL_WINDOW_OPENGL;
+	uint32 flags = 0;
+	
+	if (use_opengl) {
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		flags |= SDL_WINDOW_OPENGL;
+	}
 	//if (full_screen)
 	//	flags |= SDL_WINDOW_FULLSCREEN;
 	if (is_sizeable)
@@ -93,7 +98,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 		flags |= SDL_WINDOW_MAXIMIZED;
 	if (SDL_CreateWindowAndRenderer(screen_sz.cx, screen_sz.cy, flags, &win, &rend) == -1)
         return false;
-    
+	SDL_SetWindowTitle(win, title);
     
     // Renderer
     SDL_GetRendererInfo(rend, &rend_info);
@@ -104,20 +109,33 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	
 	
 	// GL context
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-	glcontext = SDL_GL_CreateContext(win);
+	if (use_opengl) {
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+		glcontext = SDL_GL_CreateContext(win);
+		
+		// Glew
+		GLenum err = glewInit();
+		if (err != GLEW_OK) {
+			LOG("Glew error: " << (const char*)glewGetErrorString(err));
+			return false;
+		}
+	}
 	
 	
-	// Glew
-	GLenum err = glewInit();
-	if (err != GLEW_OK) {
-		LOG("Glew error: " << (const char*)glewGetErrorString(err));
-		return false;
+	// Software framebuffer
+	if (!use_opengl) {
+		int fb_stride = 3;
+		SDL_Texture* fb = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, screen_sz.cx, screen_sz.cy);
+		if (!fb) {
+			LOG("error: couldn't create framebuffer texture");
+		}
+		
+		data->sw_rend.GetOutputSoftFramebuffer().Init(fb, screen_sz.cx, screen_sz.cy, fb_stride);
 	}
 	
 	
@@ -133,7 +151,9 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	
 	
 	// Load shaders
+	/*
 	simple_shader.Load(FindLocalFile("shaders" DIR_SEPS "model_loading.vs"), FindLocalFile("shaders" DIR_SEPS "model_loading.fs"));
+	*/
 	
 	
 	// Init ECS machine
@@ -340,18 +360,37 @@ void SDL2GUI3DAlt::WakeUpGuiThread() {
 }
 
 SystemDraw& SDL2GUI3DAlt::BeginDraw() {
-	/*gldraw.Init(GetSize(), (uint64)glcontext);
-	sysdraw.SetTarget(&gldraw);*/
+	if (!use_opengl) {
+		auto& rend = data->sw_rend;
+		auto& draw = data->sw_draw;
+		
+		rend.screen_sz = screen_sz;
+	    rend.win = win;
+	    rend.rend = this->rend;
+	    rend.PreFrame();
+	    draw.rend = &rend;
+	    draw.fb = &rend.GetOutputSoftFramebuffer();
+	    sysdraw.ptr = &draw;
+	    
+	    data->sw_draw.fb->Enter();
+	}
+	else {
+		TODO
+	}
+	
 	return sysdraw;
 }
 
-dword       SDL2GUI3DAlt::GetMouseButtons() {TODO}
-dword       SDL2GUI3DAlt::GetModKeys() {TODO}
-bool        SDL2GUI3DAlt::IsMouseIn() {TODO}
-void        SDL2GUI3DAlt::SetMouseCursor(const Image& image) {TODO}
+dword SDL2GUI3DAlt::GetMouseButtons() {TODO}
+dword SDL2GUI3DAlt::GetModKeys() {TODO}
+bool  SDL2GUI3DAlt::IsMouseIn() {TODO}
+void  SDL2GUI3DAlt::SetMouseCursor(const Image& image) {TODO}
 
-void        SDL2GUI3DAlt::CommitDraw() {
-	SwapBuffer();
+void  SDL2GUI3DAlt::CommitDraw() {
+	if (!use_opengl) {
+		data->sw_draw.fb->Leave();
+	}
+	data->sw_rend.PostFrame();
 }
 
 

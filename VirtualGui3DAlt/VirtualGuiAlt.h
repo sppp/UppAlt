@@ -19,16 +19,6 @@ struct CtrlEvent {
 
 class SystemDraw : public DrawProxy {
 public:
-	VirtualGui3DAlt* gui = 0;
-	
-	Size GetPageSize() const override;
-	void DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color) override;
-	void DrawRectOp(int x, int y, int cx, int cy, Color color) override;
-	void DrawTextOp(int x, int y, int angle, const wchar *text, Font font,
-		             Color ink, int n, const int *dx) override;
-	void DrawPolyPolylineOp(const Point *vertices, int vertex_count,
-	                        const int *counts, int count_count,
-	                        int width, Color color, Color doxor) override;
 	
 	bool    CanSetSurface()                         { return false; }
 	static void Flush()                             {}
@@ -67,6 +57,7 @@ struct VirtualGui3DAlt {
 	virtual SystemDraw& BeginDraw() = 0;
 	virtual void        CommitDraw() = 0;
 	virtual uint32      GetTickCount() = 0;
+	virtual void        SetTitle(String title) = 0;
 };
 
 extern VirtualGui3DAlt* VirtualGui3DAltPtr;

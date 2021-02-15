@@ -334,6 +334,8 @@ bool CoreWindow::Redraw(bool only_pending) {
 	if (!Ctrl::Redraw(only_pending))
 		return false;
 	
+	TODO
+	#if 0
 	Rect r = GetFrameRect();
 	Size sz = GetFrameSize();
 	int width = sz.cx;
@@ -432,6 +434,9 @@ bool CoreWindow::Redraw(bool only_pending) {
 	glDisable(GL_BLEND);
 	
     glClearColor(0, 0, 0, 1.0);
+    
+    #endif
+    
 	return true;
 }
 
@@ -478,7 +483,7 @@ void CoreWindow::DrawLine(DrawCommand& cmd) {
 	mesh.indices.Reserve(2);
 	mesh.indices.Add(0);
 	mesh.indices.Add(1);
-	mesh.SetupMesh();
+	//mesh.SetupOpenGL();
 	window_shader.Paint(model);
 }
 
@@ -512,7 +517,7 @@ void CoreWindow::DrawImage(DrawCommand& cmd) {
 	mesh.indices.Add(0);
 	mesh.indices.Add(2);
 	mesh.indices.Add(3);
-	mesh.SetupMesh();
+	//mesh.SetupOpenGL();
 	window_shader.Paint(model);
 }
 
@@ -548,7 +553,7 @@ void CoreWindow::DrawRect(DrawCommand& cmd) {
 	mesh.indices.Add(0);
 	mesh.indices.Add(2);
 	mesh.indices.Add(3);
-	mesh.SetupMesh();
+	//mesh.SetupOpenGL();
 	window_shader.Paint(model);
 }
 
@@ -592,7 +597,7 @@ void CoreWindow::DrawTriangles(DrawCommand& cmd) {
 	ColorCopy(cmd.clr, mesh.material.ambient);
 	//mesh.material.ambient.a = cmd.clr.a;
 	mesh.is_colored_only = true;
-	mesh.SetupMesh();
+	//mesh.SetupOpenGL();
 	window_shader.Paint(model);
 }
 
@@ -620,7 +625,7 @@ void CoreWindow::DrawPolyline(DrawCommand& cmd) {
 	//mesh.material.ambient.a = cmd.clr.a;
 	mesh.is_colored_only = true;
 	mesh.is_lines = true;
-	mesh.SetupMesh();
+	//mesh.SetupOpenGL();
 	window_shader.Paint(model);
 }
 

@@ -24,6 +24,7 @@ NAMESPACE_UPP
 
 typedef TTF_Font		RawSysFont;
 typedef SDL_Surface		RawSysImage;
+typedef SDL_Texture		RawSysTexture;
 typedef SDL_Color		SysColor;
 
 struct SysFont {

@@ -55,12 +55,7 @@ void SDL2GUI3DAlt::Render(bool do_render) {
 
 void SDL2GUI3DAlt::RenderFrame() {
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	RefreshGL();
-	
-	if (data->cam.IsEmpty()) {
+	/*if (data->cam.IsEmpty()) {
 		Vector<Tuple<Entity*, Camerable*>> wins = data->ents->GetComponentsWithEntity<Camerable>();
 		
 		for(int i = 0; i < wins.GetCount(); i++) {
@@ -76,13 +71,12 @@ void SDL2GUI3DAlt::RenderFrame() {
 	glEnable(GL_DEPTH_TEST);
 	RenderCamera();
 	
-	RenderWindows();
+	RenderWindows();*/
 	
-	SwapBuffer();
-
-
 }
 
+
+#if 0
 
 void SDL2GUI3DAlt::RenderCamera() {
 	
@@ -169,6 +163,8 @@ void SDL2GUI3DAlt::RenderCamera() {
 	//glDisable(GL_TEXTURE_2D);
 }
 
+
+
 void SDL2GUI3DAlt::RenderWindows() {
 	
 	glDisable(GL_DEPTH_TEST);
@@ -232,41 +228,7 @@ void SDL2GUI3DAlt::RenderWindows() {
 	
 }
 
-void SDL2GUI3DAlt::SwapBuffer() {
-	SDL_GL_SwapWindow(win);
-}
-
-void SDL2GUI3DAlt::RefreshGL() {
-	Windows* windows = Ctrl::GetWindows();
-	
-	// Enable smooth shading
-	glShadeModel( GL_SMOOTH );
-	
-	// Set the background black
-	glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-	
-	// Depth buffer setup
-	glClearDepth( 1.0f );
-	
-	// Enables Depth Testing
-	glEnable( GL_DEPTH_TEST );
-	
-	// The Type Of Depth Test To Do
-	glDepthFunc( GL_LEQUAL );
-	
-	// Really Nice Perspective Calculations
-	glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
-	
-	
-	// Culling.
-	glCullFace( GL_BACK );
-	glFrontFace( GL_CCW );
-	glEnable( GL_CULL_FACE );
-	
-	
-	glViewport(0, 0, screen_sz.cx, screen_sz.cy);
-	
-}
+#endif
 
 
 
@@ -279,23 +241,6 @@ void SDL2GUI3DAlt::RefreshGL() {
 
 
 
-void SystemDraw::DrawLineOp(int x1, int y1, int x2, int y2, int width, Color color) {
-	TODO
-}
 
-void SystemDraw::DrawRectOp(int x, int y, int cx, int cy, Color color) {
-	TODO
-}
-
-void SystemDraw::DrawTextOp(int x, int y, int angle, const wchar *text, Font font,
-	                        Color ink, int n, const int *dx) {
-	TODO
-}
-
-void SystemDraw::DrawPolyPolylineOp(const Point *vertices, int vertex_count,
-                                    const int *counts, int count_count,
-                                    int width, Color color, Color doxor) {
-	TODO
-}
 
 END_UPP_NAMESPACE

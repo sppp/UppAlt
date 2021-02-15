@@ -82,7 +82,7 @@ class CoreWindow : public Ctrl, public Component<CoreWindow> {
 	
 	Vector<mat4> offset;
 	DrawCommand cmd_screen_begin, cmd_screen_end;
-	Framebuffer fb;
+	//Framebuffer fb;
 	ResizeFrame resize_frame;
 	WindowDecoration decor;
 	Button minimize, maximize, close;
@@ -159,8 +159,8 @@ public:
 	void SetStoredRect(Rect r) {stored_rect = r;}
 	void SetPendingPartialRedraw(bool b=true) {pending_partial_redraw = b;}
 	
-	GLuint GetTexture() {return fb.GetTexture();}
-	const Framebuffer& GetFramebuffer() const {return fb;}
+	//GLuint GetTexture() {return fb.GetTexture();}
+	//const Framebuffer& GetFramebuffer() const {return fb;}
 	int GetId() const {return id;}
 	Rect GetStoredRect() const {return stored_rect;}
 	String GetTitle() const {return decor.GetLabel();}

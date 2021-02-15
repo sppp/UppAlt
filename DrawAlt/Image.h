@@ -121,32 +121,6 @@ public:
 
 
 
-
-
-struct FramebufferDraw {
-	
-	
-	
-	virtual void Enter() = 0;
-	virtual void Leave() = 0;
-	virtual byte* GetIterator(int x, int y) = 0;
-	virtual int GetWidth() const = 0;
-	virtual int GetHeight() const = 0;
-	virtual int GetStride() const = 0;
-	virtual int GetPitch() const = 0;
-	
-	int GetBufferSize() const {return GetHeight() * GetPitch();}
-	
-	void Zero();
-	void DrawPixel(int x, int y, RGBA color);
-	void DrawPixel(int x, int y, byte* color);
-	void DrawHLine(int x0, int x1, int y, byte* color);
-	void DrawLine(int x0, int y0, int x1, int y1, byte* color);
-	void DrawLine(const Point& a, const Point& b, byte* color) {DrawLine(a.x, a.y, b.x, b.y, color);}
-	void DrawLine(const Pointf& a, const Pointf& b, byte* color) {DrawLine((int)a.x, (int)a.y, (int)b.x, (int)b.y, color);}
-	
-};
-
 NAMESPACE_UPP_END
 
 

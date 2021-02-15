@@ -37,7 +37,7 @@ public:
 	bool Attach(ScreenOutput& output) override;
 	bool Attach(SoundOutput& output) override;
 	
-	
+	void SetTitle(String title);
 	
 	Callback WhenClose;
 	

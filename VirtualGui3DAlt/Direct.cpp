@@ -10,6 +10,10 @@ DirectWindow::DirectWindow() {
 	
 }
 
+void DirectWindow::SetTitle(String title) {
+	VirtualGui3DAltPtr->SetTitle(title);
+}
+
 void DirectWindow::Initialize() {
 	uint32 flags = 0;
 	
@@ -68,6 +72,14 @@ void DirectWindow::Uninitialize() {
 }
 
 bool DirectWindow::Attach(ScreenOutput& output) {
+	ASSERT(!screen_output_cb);
+	if (!screen_output_cb) {
+		screen_output_cb = &output;
+		return true;
+	}
+	return false;
+	
+	#if 0
 	auto type = output.GetType();
 	
 	if (type == PIPELINE_CPU) {
@@ -96,6 +108,7 @@ bool DirectWindow::Attach(ScreenOutput& output) {
 		return true;
 	}
 	else Panic("Unimplemented");
+	#endif
 	
 	return false;
 }
