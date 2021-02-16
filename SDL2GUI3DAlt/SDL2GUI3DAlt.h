@@ -19,8 +19,7 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	bool is_maximized = false;
 	bool is_sizeable = false;
 	bool mouse_captured = false;
-	bool use_opengl = true;
-	//Sppp::Shader simple_shader;
+	
 	Size screen_sz;
 	SDL2GUI3DAlt_MachineData* data = 0;
 	
@@ -52,6 +51,7 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	void Maximize(bool b=true);
 	bool IsCaptured() const {return mouse_captured;}
 	bool IsOpen() const {return is_open;}
+	SDL2GUI3DAlt_MachineData* GetData() {return data;}
 	
 	bool InitMachine();
 	bool DeinitMachine();

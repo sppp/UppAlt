@@ -14,7 +14,6 @@ SDL2GUI3DAlt* __current_SDL2GUI3DAlt;
 SDL2GUI3DAlt::SDL2GUI3DAlt() {
 	__current_SDL2GUI3DAlt = this;
 	data = &__sdl2data;
-	use_opengl = false;
 }
 
 SDL2GUI3DAlt::~SDL2GUI3DAlt() {
@@ -53,7 +52,7 @@ bool SDL2GUI3DAlt::InitMachine() {
 	
 	    mach.Start();
 	    
-		ents.Create<Camera>();
+		ents.Create<CameraPrefab>();
 	}
 	catch (Exc e) {
 		LOG("InitMachine error: " << e);
@@ -70,6 +69,7 @@ bool SDL2GUI3DAlt::DeinitMachine() {
 }
 
 bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
+	AppFlags& app_flags = GetAppFlags();
 	ASSERT(!VirtualGui3DAltPtr);
 	VirtualGui3DAltPtr = this;
 	
@@ -86,7 +86,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	screen_sz = rect.GetSize();
 	uint32 flags = 0;
 	
-	if (use_opengl) {
+	if (app_flags.IsOpenGL()) {
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		flags |= SDL_WINDOW_OPENGL;
 	}
@@ -109,7 +109,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	
 	
 	// GL context
-	if (use_opengl) {
+	if (app_flags.IsOpenGL()) {
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -128,7 +128,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	
 	
 	// Software framebuffer
-	if (!use_opengl) {
+	if (app_flags.IsSoftwareRenderer()) {
 		int fb_stride = 3;
 		SDL_Texture* fb = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, screen_sz.cx, screen_sz.cy);
 		if (!fb) {
@@ -148,12 +148,6 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	if (full_screen)
 		SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
 	#endif
-	
-	
-	// Load shaders
-	/*
-	simple_shader.Load(FindLocalFile("shaders" DIR_SEPS "model_loading.vs"), FindLocalFile("shaders" DIR_SEPS "model_loading.fs"));
-	*/
 	
 	
 	// Init ECS machine
@@ -360,7 +354,8 @@ void SDL2GUI3DAlt::WakeUpGuiThread() {
 }
 
 SystemDraw& SDL2GUI3DAlt::BeginDraw() {
-	if (!use_opengl) {
+	AppFlags& flags = GetAppFlags();
+	if (flags.IsSoftwareRenderer()) {
 		auto& rend = data->sw_rend;
 		auto& draw = data->sw_draw;
 		
@@ -373,6 +368,20 @@ SystemDraw& SDL2GUI3DAlt::BeginDraw() {
 	    sysdraw.ptr = &draw;
 	    
 	    data->sw_draw.fb->Enter();
+	}
+	else if (flags.IsOpenGL()) {
+		auto& rend = data->hw_rend;
+		auto& draw = data->hw_draw;
+		
+		rend.screen_sz = screen_sz;
+	    rend.win = win;
+	    rend.rend = this->rend;
+	    rend.PreFrame();
+	    draw.rend = &rend;
+	    draw.fb = &rend.GetOutputHardFramebuffer();
+	    sysdraw.ptr = &draw;
+	    
+	    data->hw_draw.fb->Enter();
 	}
 	else {
 		TODO
@@ -387,10 +396,15 @@ bool  SDL2GUI3DAlt::IsMouseIn() {TODO}
 void  SDL2GUI3DAlt::SetMouseCursor(const Image& image) {TODO}
 
 void  SDL2GUI3DAlt::CommitDraw() {
-	if (!use_opengl) {
+	AppFlags& flags = GetAppFlags();
+	if (flags.IsSoftwareRenderer()) {
 		data->sw_draw.fb->Leave();
+		data->sw_rend.PostFrame();
 	}
-	data->sw_rend.PostFrame();
+	else if (flags.IsOpenGL()) {
+		data->hw_draw.fb->Leave();
+		data->hw_rend.PostFrame();
+	}
 }
 
 

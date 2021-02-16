@@ -9,7 +9,8 @@ struct SDL2GUI3DAlt_MachineData {
 	Shared<Entity> cam;
 	SoftRenderer sw_rend;
 	SoftFramebufferDraw sw_draw;
-	//HardRenderer rend;
+	HardRenderer hw_rend;
+	HardFramebufferDraw hw_draw;
 	
 	
 };

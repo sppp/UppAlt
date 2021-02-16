@@ -5,7 +5,7 @@ NAMESPACE_SPPP_BEGIN
 
 
 
-Shader CoreWindow::window_shader;
+//Shader CoreWindow::window_shader;
 
 
 
@@ -278,10 +278,11 @@ CoreWindow::CoreWindow() : stored_rect(0,0,0,0), decor(this) {
 	maximize.WhenAction = THISBACK(ToggleMaximized);
 	minimize.WhenAction = THISBACK(Minimize);
 	
-	if (!window_shader.IsLoaded()) {
-		window_shader.Load(
-			FindLocalFile("shaders" DIR_SEPS "window_shader.vs"),
-			FindLocalFile("shaders" DIR_SEPS "window_shader.fs"));
+	shader = Shader::NewDefault();
+	if (!shader->IsLoaded()) {
+		shader->Load(
+			FindLocalFile("shaders" DIR_SEPS "shader->vs"),
+			FindLocalFile("shaders" DIR_SEPS "shader->fs"));
 	}
 }
 
@@ -380,16 +381,16 @@ bool CoreWindow::Redraw(bool only_pending) {
     glClearColor(0.25, 0.25, 0.25, 1.0);
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	
-	window_shader.Use();
-    window_shader.SetInt("texture1", 0);
-    window_shader.SetInt("texture2", 1);
+	shader->Use();
+    shader->SetInt("texture1", 0);
+    shader->SetInt("texture2", 1);
 	
 	
 	mat4 projection = GetViewport(-width_2, width_2, -height_2, height_2, 1024);
-    window_shader.SetMat4("projection", projection);
+    shader->SetMat4("projection", projection);
     
     mat4 view = LookAt(vec3(0., 0., -1.), vec3(0.,0.,0.), vec3(0.0f, 1.0f, 0.0f));
-	window_shader.SetMat4("view", view);
+	shader->SetMat4("view", view);
     
     double x_ratio = (double)win_sz.cx / sz.cx;
 	double y_ratio = (double)win_sz.cy / sz.cy;
@@ -400,7 +401,7 @@ bool CoreWindow::Redraw(bool only_pending) {
 				(r.left + (win_sz.cx - r.right)) * 0.5,
 				(-r.top - (win_sz.cy - r.bottom)) * 0.5,
 				0));
-	window_shader.SetMat4("scale", scale);
+	shader->SetMat4("scale", scale);
 	
     
 	DrawCommand start, stop;
@@ -483,8 +484,8 @@ void CoreWindow::DrawLine(DrawCommand& cmd) {
 	mesh.indices.Reserve(2);
 	mesh.indices.Add(0);
 	mesh.indices.Add(1);
-	//mesh.SetupOpenGL();
-	window_shader.Paint(model);
+	mesh.SetupAutomatic();
+	shader->Paint(model);
 }
 
 void CoreWindow::DrawImage(DrawCommand& cmd) {
@@ -517,8 +518,8 @@ void CoreWindow::DrawImage(DrawCommand& cmd) {
 	mesh.indices.Add(0);
 	mesh.indices.Add(2);
 	mesh.indices.Add(3);
-	//mesh.SetupOpenGL();
-	window_shader.Paint(model);
+	mesh.SetupAutomatic();
+	shader->Paint(model);
 }
 
 void CoreWindow::DrawRect(DrawCommand& cmd) {
@@ -553,8 +554,8 @@ void CoreWindow::DrawRect(DrawCommand& cmd) {
 	mesh.indices.Add(0);
 	mesh.indices.Add(2);
 	mesh.indices.Add(3);
-	//mesh.SetupOpenGL();
-	window_shader.Paint(model);
+	mesh.SetupAutomatic();
+	shader->Paint(model);
 }
 
 void CoreWindow::DrawTriangles(DrawCommand& cmd) {
@@ -597,8 +598,8 @@ void CoreWindow::DrawTriangles(DrawCommand& cmd) {
 	ColorCopy(cmd.clr, mesh.material.ambient);
 	//mesh.material.ambient.a = cmd.clr.a;
 	mesh.is_colored_only = true;
-	//mesh.SetupOpenGL();
-	window_shader.Paint(model);
+	mesh.SetupAutomatic();
+	shader->Paint(model);
 }
 
 void CoreWindow::DrawPolyline(DrawCommand& cmd) {
@@ -625,8 +626,8 @@ void CoreWindow::DrawPolyline(DrawCommand& cmd) {
 	//mesh.material.ambient.a = cmd.clr.a;
 	mesh.is_colored_only = true;
 	mesh.is_lines = true;
-	//mesh.SetupOpenGL();
-	window_shader.Paint(model);
+	mesh.SetupAutomatic();
+	shader->Paint(model);
 }
 
 void CoreWindow::DrawOffset(DrawCommand& cmd) {
@@ -635,12 +636,12 @@ void CoreWindow::DrawOffset(DrawCommand& cmd) {
 	float x = cmd.i[0];
 	float y = cmd.i[1];
 	next = translate(prev, vec3(x, y, 0));
-	window_shader.SetMat4("offset", next);
+	shader->SetMat4("offset", next);
 }
 
 void CoreWindow::DrawEnd(DrawCommand& cmd) {
 	offset.Pop();
-	window_shader.SetMat4("offset", offset.Top());
+	shader->SetMat4("offset", offset.Top());
 }
 
 void CoreWindow::Wait() {

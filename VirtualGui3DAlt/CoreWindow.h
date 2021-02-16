@@ -74,7 +74,7 @@ class CoreWindow : public Ctrl, public Component<CoreWindow> {
 		void DoResize();
 	};
 	
-	static Shader window_shader;
+	One<Shader> shader;
 	
 	One<TopWindow> tw;
 	void (CoreWindow::*reset_fn)();
