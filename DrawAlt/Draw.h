@@ -4,7 +4,9 @@
 #include <CoreAlt/Core.h>
 #include <guiplatform.h>
 
-#include GUIPLATFORM_VIRTUALGUI_BACKEND_INCLUDE
+#ifdef GUIPLATFORM_VIRTUALGUI_BACKEND_INCLUDE
+	#include GUIPLATFORM_VIRTUALGUI_BACKEND_INCLUDE
+#endif
 
 #include "Image.h"
 #include "Font.h"

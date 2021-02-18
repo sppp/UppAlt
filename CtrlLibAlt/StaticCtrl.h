@@ -23,7 +23,7 @@ public:
 	virtual Size GetMinSize() const;
 	virtual void Paint(Draw& w);
 	
-	void Color(Upp::Color c) {clr = c;}
+	StaticRect& SetColor(Color c) {clr = c; return *this;}
 	
 	struct Style : ChStyle<Style> {
 		Value def_clr;
