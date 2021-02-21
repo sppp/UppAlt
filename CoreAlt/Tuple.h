@@ -105,6 +105,18 @@ struct RefPair : Moveable<RefPair<A,B>> {
 	RefPair* operator->(){return this;} // hack to allow returning object from Iterator
 };
 
+template <class A, class B>
+struct PtrPair : Moveable<PtrPair<A,B>> {
+	A* a;
+	B* b;
+
+	PtrPair() : a(0), b(0) {}
+	PtrPair(A* a, B* b) : a(a), b(b) {}
+	PtrPair(const PtrPair& r) : a(r.a), b(r.b) {}
+	
+	PtrPair* operator->(){return this;} // hack to allow returning object from Iterator
+};
+
 NAMESPACE_UPP_END
 
 #endif

@@ -137,6 +137,14 @@ class Vector : Moveable<Vector<K>> {
 	void Pick0(Vector& v) { data = v.data; v.data = 0; alloc = v.alloc; v.alloc = 0; count = v.count; v.count = 0; }
 	
 public:
+	typedef K* ElPtr;
+	
+	struct RefGet {
+		ElPtr p = 0;
+		RefGet(ElPtr p) : p(p) {}
+		K& operator()() {return *p;}
+	};
+	
 	template <class P, int I>
 	struct Iterator0 {
 		P* kit = NULL;
@@ -152,6 +160,7 @@ public:
 		void operator-=(int i) {kit -= I * i;}
 		P* operator->() const {return kit;}
 		P* Get() const {return kit;}
+		ElPtr GetElPtr() const {return kit;}
 		operator P*() const {return kit;}
 		P& operator*() const {return *kit;}
 		bool operator==(P* ptr) const {return ptr == kit;}
@@ -414,6 +423,14 @@ class Array {
 	VectorK l;
 
 public:
+	typedef K** ElPtr;
+	
+	struct RefGet {
+		ElPtr p = 0;
+		RefGet(ElPtr p) : p(p) {}
+		K& operator()() {return **p;}
+	};
+	
 	/*struct Iterator {
 		typename Vector<K*>::Iterator kit;
 		Iterator() {}
@@ -447,6 +464,7 @@ public:
 		Iterator0 operator+(int i) const {Iterator0 o(*this); o.kit += I * i; return o;}
 		K* operator->() const {return kit.Get();}
 		K* Get() const {return *kit.Get();}
+		ElPtr GetElPtr() const {return kit.Get();}
 		operator K*() const {return Get();}
 		K& operator*() const {return *Get();}
 		bool operator==(K* ptr) const {return *kit.kit == ptr;}
@@ -563,19 +581,27 @@ class Index : Moveable<Index<K>> {
 	Vector<K> values;
 
 public:
+	typedef uint32* HashPtr;
+	typedef K* ValuePtr;
+	
 	struct Iterator {
+		typedef PtrPair<uint32,K> ElPtr;
+		typename Vector<uint32>::Iterator hit;
 		typename Vector<K>::Iterator kit;
 		Iterator() {}
-		Iterator(typename Vector<K>::Iterator kit) : kit(kit) {}
+		Iterator(typename Vector<uint32>::Iterator hit, typename Vector<K>::Iterator kit) : hit(hit), kit(kit) {}
 		Iterator(const Iterator& it) {*this = it;}
-		void operator=(const Iterator& it) {kit = it.kit;}
-		void operator++() {kit++;}
-		void operator--() {kit--;}
-		void operator++(int i) {kit++;}
-		void operator--(int i) {kit--;}
-		void operator+=(int i) {kit += i;}
+		void operator=(const Iterator& it) {hit = it.hit; kit = it.kit;}
+		void operator++() {hit++; kit++;}
+		void operator--() {hit--; kit--;}
+		void operator++(int i) {hit++; kit++;}
+		void operator--(int i) {hit--; kit--;}
+		void operator+=(int i) {hit += i; kit += i;}
 		K* operator->()const  {return kit;}
 		K* Get() const {return kit.Get();}
+		HashPtr GetHashPtr() const {return hit.GetElPtr();}
+		ValuePtr GetValuePtr() const {return kit.GetElPtr();}
+		ElPtr GetIter() const {return ElPtr(hit.GetElPtr(), kit.GetElPtr());}
 		bool operator==(const Iterator& it) const {return kit == it.kit;}
 		bool operator!=(const Iterator& it) const {return kit != it.kit;}
 		K& operator*() const {return *Get();}
@@ -599,12 +625,12 @@ public:
 	
 	void Serialize(Stream& s) {hashes.Serialize(s); values.Serialize(s);}
 	
-	Iterator Begin() {return Iterator(values.Begin());}
-	Iterator begin() {return Iterator(values.Begin());}
-	Iterator End() {return Iterator(values.End());}
-	Iterator end() {return Iterator(values.End());}
-	const Iterator Begin() const {return Iterator(values.Begin());}
-	const Iterator End() const {return Iterator(values.End());}
+	Iterator Begin() {return Iterator(hashes.Begin(), values.Begin());}
+	Iterator begin() {return Iterator(hashes.Begin(), values.Begin());}
+	Iterator End() {return Iterator(hashes.End(), values.End());}
+	Iterator end() {return Iterator(hashes.End(), values.End());}
+	const Iterator Begin() const {return Iterator(hashes.Begin(), values.Begin());}
+	const Iterator End() const {return Iterator(hashes.End(), values.End());}
 	K* Get() {return values.Get();}
 	
 	const K& operator[](int i) const {
@@ -659,11 +685,15 @@ class Map : Moveable<Map<K,V,Array>> {
 	Array<V> values;
 
 public:
+	typedef typename Index<K>::HashPtr HashPtr;
+	typedef typename Index<K>::ValuePtr KeyPtr;
+	typedef typename Array<V>::ElPtr ValuePtr;
 	typedef typename Index<K>::Iterator KeyIterator;
 	typedef typename Array<V>::Iterator ValueIterator;
 	
 	struct Iterator {
 		typedef RefPair<K, V> Ret;
+		typedef Tuple<HashPtr, KeyPtr, ValuePtr> ElPtr;
 		typename Index<K>::Iterator kit;
 		typename Array<V>::Iterator vit;
 		Iterator() {}
@@ -678,6 +708,7 @@ public:
 		Iterator operator+(int i) const {Iterator o(*this); o.kit += i; o.vit += i; return o;}
 		Ret operator->() {return Get();}
 		Ret Get() const {return Ret(*kit.Get(), *vit.Get());}
+		ElPtr GetIter() const {return Tuple(kit.GetHashPtr(), kit.GetValuePtr(), vit.GetElPtr());}
 		V& GetValue() const {return Get().second;}
 		bool operator==(V* ptr) const {return vit == ptr;}
 		bool operator!=(V* ptr) const {return vit != ptr;}

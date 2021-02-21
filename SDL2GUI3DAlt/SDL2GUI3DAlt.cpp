@@ -138,6 +138,8 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 		data->sw_rend.GetOutputSoftFramebuffer().Init(fb, screen_sz.cx, screen_sz.cy, fb_stride);
 	}
 	
+	// Images
+	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
 	
 	// Fonts
     TTF_Init();
@@ -162,6 +164,7 @@ void SDL2GUI3DAlt::Quit() {
 	GetDrawCommandCache().Clear();
 	DeinitMachine();
     TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
     is_open = false;
 }

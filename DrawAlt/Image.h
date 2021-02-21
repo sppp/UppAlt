@@ -36,7 +36,7 @@ public:
 		Point hotspot;
 		int refs = 1;
 		
-		ImageDataRef() : hotspot(0,0) {}
+		//ImageDataRef() : hotspot(0,0) {}
 		ImageDataRef(RawSysImage* raw) : img(raw), hotspot(0,0) {}
 		void Inc() {refs++;}
 		void Dec() {refs--; if (refs <= 0) delete this;}
@@ -58,7 +58,11 @@ public:
 	int GetWidth() const {if (!data) return 0; return data->img.GetWidth();}
 	int GetHeight() const {if (!data) return 0; return data->img.GetHeight();}
 	Size GetSize() const {if (!data) return Size(0,0); return Size(data->img.GetWidth(), data->img.GetHeight());}
+	int GetStride() const {if (!data) return 0; return data->img.GetStride();}
+	int GetPitch() const {if (!data) return 0; return data->img.GetPitch();}
 	const byte* GetIter(int x, int y) const;
+	const byte* Begin() const {return GetIter(0,0);}
+	const byte* End() const {Size sz = GetSize(); return GetIter(sz.cx, sz.cy);}
 	void Serialize(Stream& s) {TODO}
 	operator bool() const {return data;}
 	

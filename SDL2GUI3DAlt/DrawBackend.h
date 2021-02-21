@@ -44,8 +44,8 @@ struct SysFont {
 struct SysImage {
 	RawSysImage* raw = 0;
 	
-	SysImage() {}
-	SysImage(RawSysImage* raw) : raw(raw) {}
+	//SysImage() {}
+	SysImage(RawSysImage* raw) : raw(raw) {++raw->refcount;}
 	~SysImage() {Clear();}
 	void Clear();
 	int GetWidth() const {if (raw) return raw->w; return 0;}

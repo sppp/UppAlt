@@ -9,8 +9,10 @@ void SysFont::Clear() {
 }
 
 void SysImage::Clear() {
-	if (raw && IsGuiOpen())
-		SDL_FreeSurface(raw);
+	if (raw && IsGuiOpen()) {
+		if (--raw->refcount == 0)
+			SDL_FreeSurface(raw);
+	}
 	raw = 0;
 }
 

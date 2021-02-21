@@ -649,8 +649,8 @@ inline String HexStr(uint64 p) {
 	bool zero = true;
 	uint64 i = 64;
 	do {
-		i--;
-		byte b = (p >> i) & 15ULL;
+		i -= 8;
+		byte b = (p >> i) & 0xFFULL;
 		if (b || !zero) {
 			zero = false;
 			o.Cat(HexDigit(b));
