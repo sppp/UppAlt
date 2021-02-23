@@ -17,7 +17,9 @@ class DirectWindow :
     bool is_open = false;
     
 	static uint32 prev_ticks;
-	
+	int fps_limit = 0;
+	float fps_dt = 0;
+	float frame_age = 0;
 	
 public:
 	
@@ -30,6 +32,7 @@ public:
 	
 	DirectWindow();
 	
+	void SetFPS(int fps) {fps_limit = fps; fps_dt = 1.0 / fps;}
 	void Update(float dt);
 	
 	void Initialize() override;

@@ -7,6 +7,7 @@ uint32 DirectWindow::prev_ticks;
 
 
 DirectWindow::DirectWindow() {
+	SetFPS(60);
 	
 }
 
@@ -29,20 +30,29 @@ void DirectWindow::Initialize() {
 }
 
 void DirectWindow::Update(float dt) {
+	frame_age += dt;
 	
-	if (screen_output_cb) {
-		SystemDraw& draw = VirtualGui3DAltPtr->BeginDraw();
+	if (frame_age >= fps_dt) {
+		if (frame_age > 2 * fps_dt)
+			frame_age = fps_dt;
+		else
+			frame_age = Modulus(frame_age, fps_dt);
 		
-		screen_output_cb->Render(draw);
-		
-		VirtualGui3DAltPtr->CommitDraw();
+		if (screen_output_cb) {
+			SystemDraw& draw = VirtualGui3DAltPtr->BeginDraw();
+			
+			screen_output_cb->SetFPS(fps_limit);
+			screen_output_cb->Render(draw);
+			
+			VirtualGui3DAltPtr->CommitDraw();
+		}
+		/*
+		if (pipe || screen_output_cb) {
+			SDL_RenderCopy(display_renderer, fb, NULL, NULL);
+			SwapBuffer();
+		}
+		*/
 	}
-	/*
-	if (pipe || screen_output_cb) {
-		SDL_RenderCopy(display_renderer, fb, NULL, NULL);
-		SwapBuffer();
-	}
-	*/
 }
 
 void DirectWindow::Uninitialize() {
