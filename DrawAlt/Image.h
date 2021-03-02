@@ -62,7 +62,7 @@ public:
 	int GetPitch() const {if (!data) return 0; return data->img.GetPitch();}
 	const byte* GetIter(int x, int y) const;
 	const byte* Begin() const {return GetIter(0,0);}
-	const byte* End() const {Size sz = GetSize(); return GetIter(sz.cx, sz.cy);}
+	const byte* End() const {Size sz = GetSize(); return GetIter(0, sz.cy);}
 	void Serialize(Stream& s) {TODO}
 	operator bool() const {return data;}
 	

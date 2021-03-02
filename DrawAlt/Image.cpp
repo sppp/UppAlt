@@ -13,7 +13,10 @@ void Image::MakeSysAccel() {
 
 const byte* Image::GetIter(int x, int y) const {
 	if (!data) return 0;
-	return data->img.GetData() + y * data->img.GetPitch() + x * data->img.GetStride();
+	const byte* d = data->img.GetData();
+	int pitch = data->img.GetPitch();
+	int stride = data->img.GetStride();
+	return d + y * pitch + x * stride;
 }
 
 
