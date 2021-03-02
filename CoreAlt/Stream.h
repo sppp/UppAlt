@@ -303,7 +303,7 @@ public:
 	bool IsEof() override { return cursor >= size; }
 	
 	int Get(void* mem, int size) override {
-		int64 sz = min((int64)size, size - cursor);
+		int64 sz = min((int64)size, this->size - cursor);
 		if (sz <= 0) return 0;
 		ASSERT(sz < INT_MAX);
 		char* b = (char*)mem;
