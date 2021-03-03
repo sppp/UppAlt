@@ -498,7 +498,7 @@ void SortKey__(H hl, H hh, I l, I h, J vl, J vh, const Less& less)
 			int r2 = (int)Random(count);
 			IterSwapKey<H,I,J>(hl, hl + r0, l, l + r0, vl, vl + r0);     // try some other random elements for median pivot
 			IterSwapKey<H,I,J>(hmiddle, hl + r1, middle, l + r1, vmiddle, vl + r1);
-			IterSwapKey<H,I,J>(h - 1, l + r2, vh - 1, vl + r2);
+			IterSwapKey<H,I,J>(hh - 1, hl + r2, h - 1, l + r2, vh - 1, vl + r2);
 			pass++;
 		}
 	}

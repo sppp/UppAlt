@@ -32,6 +32,7 @@ public:
 		t->cb = cb;
 		t->t = new std::thread([t, cb]() {
 			cb.Execute();
+			t->t->detach();
 			delete t;
 		});
 	}
@@ -43,6 +44,7 @@ public:
 		t->t = new std::thread([id, t, fn]() {
 			SetThreadId(id);
 			fn();
+			t->t->detach();
 			delete t;
 		});
 	}

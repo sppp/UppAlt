@@ -78,7 +78,7 @@ void GuiMainFn_(); \
 extern "C" int main(int argc, char *argv[]) {\
 	::UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
 	Sppp::SDL2GUI3DAlt gui; \
-	if (gui.Create(::UPP::Rect(0, 0, 800, 600), "Unnamed App", init_ecs)) { \
+	if (gui.Create(::UPP::Rect(0, 0, 1280, 720), "Unnamed App", init_ecs)) { \
 		GuiMainFn_(); \
 	} \
 	return ::UPP::AppExit__(); \
