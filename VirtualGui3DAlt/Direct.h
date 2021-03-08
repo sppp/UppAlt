@@ -7,13 +7,13 @@ NAMESPACE_SPPP_BEGIN
 
 class DirectWindow :
 	public Component<CoreWindow>,
-	public ScreenInput,
-	public SoundInput,
-	public ControllerOutput,
-	public ReadFileOutput,
-	public VideoOutput
+	public ScreenSource,
+	public SoundSource,
+	public ControllerSource,
+	public ReadFileSink,
+	public VideoSink
 {
-    ScreenOutput* screen_output_cb = NULL;
+    ScreenSink* screen_output_cb = NULL;
     bool is_open = false;
     
 	static uint32 prev_ticks;
@@ -21,13 +21,15 @@ class DirectWindow :
 	float fps_dt = 0;
 	float frame_age = 0;
 	
+	Vector<ControllerSink*> ctrl_sinks;
+	
 public:
 	
-	IFACE_CB(ScreenInput);
-	IFACE_CB(SoundInput);
-	IFACE_CB(ControllerOutput);
-	IFACE_CB(ReadFileOutput);
-	IFACE_CB(VideoOutput);
+	IFACE_CB(ScreenSource);
+	IFACE_CB(SoundSource);
+	IFACE_CB(ControllerSource);
+	IFACE_CB(ReadFileSink);
+	IFACE_CB(VideoSink);
 	
 	
 	DirectWindow();
@@ -37,8 +39,13 @@ public:
 	
 	void Initialize() override;
 	void Uninitialize() override;
-	bool Attach(ScreenOutput& output) override;
-	bool Attach(SoundOutput& output) override;
+	bool Link(ScreenSink& output) override;
+	bool Link(SoundSink& output) override;
+	
+	bool Link(ControllerSink& ctrl_out) override;
+	bool Unlink(ControllerSink& ctrl_out) override;
+	
+	void EmitCtrlEvent(const CtrlEvent& e) override;
 	
 	void SetTitle(String title);
 	

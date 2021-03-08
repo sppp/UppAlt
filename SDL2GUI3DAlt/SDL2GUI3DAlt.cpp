@@ -197,11 +197,19 @@ uint32 SDL2GUI3DAlt::GetTickCount() {
 	return false;
 }*/
 
+void SDL2GUI3DAlt::PutKeyFlags() {
+	if (is_lalt || is_ralt)			key |= K_ALT;
+	if (is_lshift || is_rshift)		key |= K_SHIFT;
+	if (is_lctrl || is_rctrl)		key |= K_CTRL;
+}
+
 bool SDL2GUI3DAlt::Poll(Upp::CtrlEvent& e) {
 	SDL_Event event;
 	
 	// Process the events
 	while (SDL_PollEvent(&event)) {
+		e.Clear();
+		
 	switch (event.type) {
 		
 		case SDL_WINDOWEVENT:
@@ -225,11 +233,13 @@ bool SDL2GUI3DAlt::Poll(Upp::CtrlEvent& e) {
 				SetPendingLayout();
 				SetPendingEffectRedraw();
 				SetPendingRedraw();*/
+				e.type = EVENT_WINDOW_RESIZE;
+				e.sz = screen_sz;
+				return true;
 			}
 			break;
 		
 			
-		#if 0
 		case SDL_KEYDOWN:
 		
 			switch (event.key.keysym.sym) {
@@ -243,12 +253,23 @@ bool SDL2GUI3DAlt::Poll(Upp::CtrlEvent& e) {
 			}
 			
 			key = event.key.keysym.sym;
-			if (is_lalt || is_ralt)			key |= K_ALT;
-			if (is_lshift || is_rshift)		key |= K_SHIFT;
-			if (is_lctrl || is_rctrl)		key |= K_CTRL;
-			DeepKey(key, 1);
+			if (key & SDLK_SCANCODE_MASK) {
+				key &= ~SDLK_SCANCODE_MASK;
+				
+				// TODO handle codes separately
+				if (0 /*key == */) {
+					
+				}
+				else key = 0;
+			}
+			PutKeyFlags();
 			
-			break;
+			e.type = EVENT_KEYDOWN;
+			e.value = key;
+			e.n = 1;
+			e.pt = Point(0,0);
+			
+			return true;
 			
 		case SDL_KEYUP:
 		
@@ -262,22 +283,45 @@ bool SDL2GUI3DAlt::Poll(Upp::CtrlEvent& e) {
 			}
 			
 			key = event.key.keysym.sym | K_KEYUP;
-			if (is_lalt || is_ralt)			key |= K_ALT;
-			if (is_lshift || is_rshift)		key |= K_SHIFT;
-			if (is_lctrl || is_rctrl)		key |= K_CTRL;
-			DeepKey(key, 1);
+			if (key & SDLK_SCANCODE_MASK) {
+				key &= ~SDLK_SCANCODE_MASK;
+				
+				// TODO handle codes separately
+				if (0 /*key == */) {
+					
+				}
+				else key = 0;
+			}
+			PutKeyFlags();
 			
-			break;
+			e.type = EVENT_KEYUP;
+			e.value = key;
+			e.n = 1;
+			e.pt = Point(0,0);
+			
+			return true;
 			
 		case SDL_MOUSEMOTION:
 			mouse_pt = Point(event.motion.x, event.motion.y);
-			DeepMouseMove(mouse_pt, 0);
+			key = 0;
+			PutKeyFlags();
+			
+			e.type = EVENT_MOUSEMOVE;
+			e.value = key;
+			e.pt = mouse_pt;
+			
 			prev_mouse_pt = mouse_pt;
-			break;
+			return true;
 		
 		case SDL_MOUSEWHEEL:
-			DeepMouseWheel(prev_mouse_pt, event.wheel.y, 0);
-			break;
+			key = 0;
+			PutKeyFlags();
+			
+			e.type = EVENT_MOUSEWHEEL;
+			e.value = key;
+			e.pt = mouse_pt;
+			
+			return true;
 			
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
@@ -287,27 +331,27 @@ bool SDL2GUI3DAlt::Poll(Upp::CtrlEvent& e) {
 			if (event.button.state == SDL_PRESSED) {
 				if (event.button.clicks == 1) {
 					if (event.button.button == SDL_BUTTON_LEFT)
-						mouse_code = LEFT_DOWN;
+						mouse_code = Ctrl::LEFT_DOWN;
 					else if (event.button.button == SDL_BUTTON_MIDDLE)
-						mouse_code = MIDDLE_DOWN;
+						mouse_code = Ctrl::MIDDLE_DOWN;
 					else if (event.button.button == SDL_BUTTON_RIGHT)
-						mouse_code = RIGHT_DOWN;
+						mouse_code = Ctrl::RIGHT_DOWN;
 				}
 				else if (event.button.clicks == 2) {
 					if (event.button.button == SDL_BUTTON_LEFT)
-						mouse_code = LEFT_DOUBLE;
+						mouse_code = Ctrl::LEFT_DOUBLE;
 					else if (event.button.button == SDL_BUTTON_MIDDLE)
-						mouse_code = MIDDLE_DOUBLE;
+						mouse_code = Ctrl::MIDDLE_DOUBLE;
 					else if (event.button.button == SDL_BUTTON_RIGHT)
-						mouse_code = RIGHT_DOUBLE;
+						mouse_code = Ctrl::RIGHT_DOUBLE;
 				}
 				else {
 					if (event.button.button == SDL_BUTTON_LEFT)
-						mouse_code = LEFT_TRIPLE;
+						mouse_code = Ctrl::LEFT_TRIPLE;
 					else if (event.button.button == SDL_BUTTON_MIDDLE)
-						mouse_code = MIDDLE_TRIPLE;
+						mouse_code = Ctrl::MIDDLE_TRIPLE;
 					else if (event.button.button == SDL_BUTTON_RIGHT)
-						mouse_code = RIGHT_TRIPLE;
+						mouse_code = Ctrl::RIGHT_TRIPLE;
 				}
 				/*else if (event.button.button == SDL_BUTTON_WHEELUP)
 					mouse_zdelta = 120;
@@ -316,22 +360,26 @@ bool SDL2GUI3DAlt::Poll(Upp::CtrlEvent& e) {
 			}
 			else if (event.button.state == SDL_RELEASED) {
 				if (event.button.button == SDL_BUTTON_LEFT)
-					mouse_code = LEFT_UP;
+					mouse_code = Ctrl::LEFT_UP;
 				else if (event.button.button == SDL_BUTTON_MIDDLE)
-					mouse_code = MIDDLE_UP;
+					mouse_code = Ctrl::MIDDLE_UP;
 				else if (event.button.button == SDL_BUTTON_RIGHT)
-					mouse_code = RIGHT_UP;
+					mouse_code = Ctrl::RIGHT_UP;
 			}
 			
-			mouse_pt = Point(event.button.x, event.button.y);
-			/*if (mouse_zdelta)
-				DeepMouseWheel(mouse_pt, mouse_zdelta, 0);
-			else*/
-			DeepMouse(mouse_code, mouse_pt, 0);
-			prev_mouse_pt = mouse_pt;
-			break;
-		
-		#endif
+			if (mouse_code) {
+				mouse_pt = Point(event.button.x, event.button.y);
+				key = 0;
+				PutKeyFlags();
+				
+				e.type = EVENT_MOUSE_EVENT;
+				e.value = key;
+				e.pt = mouse_pt;
+				e.n = mouse_code;
+				
+				prev_mouse_pt = mouse_pt;
+				return true;
+			}
 			
 		default:
 			break;

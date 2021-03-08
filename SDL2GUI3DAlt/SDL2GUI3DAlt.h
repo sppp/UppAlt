@@ -23,6 +23,14 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	Size screen_sz;
 	SDL2GUI3DAlt_MachineData* data = 0;
 	
+	bool is_lalt = false, is_lshift = false, is_lctrl = false;
+	bool is_ralt = false, is_rshift = false, is_rctrl = false;
+	uint32 key = 0;
+	uint32 mouse_code;
+	int mouse_zdelta, x, y, w, h, dx, dy;
+	Point prev_mouse_pt, mouse_pt;
+	
+	
 	virtual Size        GetSize();
 	virtual dword       GetMouseButtons();
 	virtual dword       GetModKeys();
@@ -52,6 +60,9 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt {
 	bool IsCaptured() const {return mouse_captured;}
 	bool IsOpen() const {return is_open;}
 	SDL2GUI3DAlt_MachineData* GetData() {return data;}
+	void PutKeyFlags();
+	
+	SDL2GUI3DAlt& Sizeable(bool b=true) {is_sizeable = b; return *this;}
 	
 	bool InitMachine();
 	bool DeinitMachine();
@@ -78,6 +89,7 @@ void GuiMainFn_(); \
 extern "C" int main(int argc, char *argv[]) {\
 	::UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
 	Sppp::SDL2GUI3DAlt gui; \
+	gui.Sizeable(); \
 	if (gui.Create(::UPP::Rect(0, 0, 1280, 720), "Unnamed App", init_ecs)) { \
 		GuiMainFn_(); \
 	} \

@@ -18,13 +18,18 @@ void DirectWindow::SetTitle(String title) {
 void DirectWindow::Initialize() {
 	uint32 flags = 0;
 	
-	Shared<RenderingSystem> sys = GetEntity().GetMachine().Get<RenderingSystem>();
-	if (!sys)
+	Shared<RenderingSystem> rend_sys = GetEntity().GetMachine().Get<RenderingSystem>();
+	if (!rend_sys)
+		return;
+	
+	Shared<EventSystem> ev_sys = GetEntity().GetMachine().Get<EventSystem>();
+	if (!ev_sys)
 		return;
 	
 	prev_ticks = VirtualGui3DAltPtr->GetTickCount();
 	
-	sys->AddRenderable(*this);
+	rend_sys	-> AddRenderable(*this);
+	ev_sys		-> AddControllable(*this);
 	
 	is_open = true;
 }
@@ -74,14 +79,19 @@ void DirectWindow::Uninitialize() {
         fb = 0;
     }*/
     
-    Shared<RenderingSystem> sys = GetEntity().GetMachine().Get<RenderingSystem>();
-	if (sys)
-		sys->RemoveRenderable(*this);
+	
+    Shared<RenderingSystem> rend_sys = GetEntity().GetMachine().Get<RenderingSystem>();
+	if (rend_sys)
+		rend_sys->RemoveRenderable(*this);
+	
+	Shared<EventSystem> ev_sys = GetEntity().GetMachine().Get<EventSystem>();
+	if (ev_sys)
+		ev_sys->RemoveControllable(*this);
 	
 	is_open = false;
 }
 
-bool DirectWindow::Attach(ScreenOutput& output) {
+bool DirectWindow::Link(ScreenSink& output) {
 	ASSERT(!screen_output_cb);
 	if (!screen_output_cb) {
 		screen_output_cb = &output;
@@ -123,10 +133,24 @@ bool DirectWindow::Attach(ScreenOutput& output) {
 	return false;
 }
 
-bool DirectWindow::Attach(SoundOutput& output)  {
+bool DirectWindow::Link(SoundSink& output)  {
 	TODO
 }
 
+bool DirectWindow::Link(ControllerSink& out) {
+	int found = -1;
+	VectorFindAdd(ctrl_sinks, &out, &found);
+	return found < 0;
+}
+
+bool DirectWindow::Unlink(ControllerSink& out) {
+	return VectorRemoveKey(ctrl_sinks, &out) > 0;
+}
+
+void DirectWindow::EmitCtrlEvent(const CtrlEvent& e) {
+	for(ControllerSink* sink : ctrl_sinks)
+		sink->RecvCtrlEvent(e);
+}
 
 
 NAMESPACE_SPPP_END

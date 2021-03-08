@@ -8,14 +8,7 @@ NAMESPACE_UPP
 
 struct VirtualGui3DAlt;
 
-enum {
-	EVENT_INVALID,
-	EVENT_SHUTDOWN,
-};
-
-struct CtrlEvent {
-	int type = 0;
-};
+struct CtrlEvent;
 
 class SystemDraw : public DrawProxy {
 public:
