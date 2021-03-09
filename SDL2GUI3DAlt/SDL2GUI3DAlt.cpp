@@ -3,6 +3,31 @@
 
 NAMESPACE_UPP
 
+bool __enable_opengl_debug;
+
+void GLAPIENTRY
+OpenGLMessageCallback( GLenum source,
+                 GLenum type,
+                 GLuint id,
+                 GLenum severity,
+                 GLsizei length,
+                 const GLchar* message,
+                 const void* userParam )
+{
+	if (!__enable_opengl_debug)
+		return;
+	String s;
+	s << "OpenGL debug: ";
+	if (type == GL_DEBUG_TYPE_ERROR)
+		s << "error: ";
+	s << "type = " << HexStr(type);
+	s << ", severity = " << HexStr(severity);
+	s << ", message = " << String(message);
+	LOG(s);
+}
+
+void EnableOpenGLDebugMessages(bool b) {__enable_opengl_debug = b;}
+
 
 
 
@@ -41,7 +66,7 @@ bool SDL2GUI3DAlt::InitMachine() {
 	    mach.Add<ComponentStore>();
 	    mach.Add<HolographicScene>();
 	    mach.Add<EasingSystem>();
-	    mach.Add<SoundSystem>();
+	    mach.Add<AudioSystem>();
 	    mach.Add<ControllerSystem>();
 	    mach.Add<MotionControllerSystem>();
 	    mach.Add<WorldLogicSystem>();
@@ -72,6 +97,7 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	AppFlags& app_flags = GetAppFlags();
 	ASSERT(!VirtualGui3DAltPtr);
 	VirtualGui3DAltPtr = this;
+	VirtualSoundPtr = this;
 	
 	// SDL
 	uint32 sdl_flags =	SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS |
@@ -124,6 +150,11 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 			LOG("Glew error: " << (const char*)glewGetErrorString(err));
 			return false;
 		}
+		
+		#ifdef flagDEBUG
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallback( OpenGLMessageCallback, 0 );
+		#endif
 	}
 	
 	
@@ -167,6 +198,48 @@ void SDL2GUI3DAlt::Quit() {
     IMG_Quit();
     SDL_Quit();
     is_open = false;
+}
+
+SystemSound& SDL2GUI3DAlt::BeginPlay() {
+	syssnd.Set(&native_snd);
+	
+	return syssnd;
+}
+
+void SDL2GUI3DAlt::CommitPlay() {
+	
+	TODO
+	
+}
+
+void SDL2GUI3DAlt::UndoPlay() {
+	
+	TODO
+	
+}
+
+int SDL2GUI3DAlt::GetSampleRate() {
+	
+	TODO
+	
+}
+
+void SDL2GUI3DAlt_Sound::Put(float* v, int size, bool realtime) {
+	
+	TODO
+	
+}
+
+int SDL2GUI3DAlt_Sound::GetQueueSize() const {
+	
+	TODO
+	
+}
+
+int SDL2GUI3DAlt_Sound::GetSampleRate() const {
+	
+	TODO
+	
 }
 
 Size SDL2GUI3DAlt::GetSize() {
