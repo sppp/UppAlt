@@ -17,7 +17,11 @@ public:
 struct VirtualSound {
 	virtual SystemSound&	BeginPlay() = 0;
 	virtual void			CommitPlay() = 0;
-	virtual int				GetSampleRate() = 0;
+	virtual bool			IsAudioSampleFloating() = 0;
+	virtual int				GetAudioSampleSize() = 0;
+	virtual int				GetAudioSampleRate() = 0;
+	virtual int				GetAudioChannels() = 0;
+	virtual int				GetAudioFrequency() = 0;
 	virtual void			UndoPlay() = 0;
 	
 };

@@ -258,7 +258,7 @@ protected:
 	void Layout0() {Layout();}
 	
 protected:
-	friend struct SDL2GUI3DAlt;
+	friend class SDL2GUI3DAlt;
 	
 	void SetFrameRect0(const Rect& r) {this->frame_r = r;}
 	

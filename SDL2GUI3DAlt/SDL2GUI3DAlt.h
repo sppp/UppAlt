@@ -10,21 +10,21 @@
 NAMESPACE_UPP
 
 struct SDL2GUI3DAlt_MachineData;
+class SDL2GUI3DAlt;
 
-struct SDL2GUI3DAlt_Sound : public Sppp::Sound {
-	
-	
-	void Put(float* v, int size, bool realtime) override;
-	virtual int GetQueueSize() const override;
-	virtual int GetSampleRate() const override;
-	
-};
 
-struct SDL2GUI3DAlt : VirtualGui3DAlt, VirtualSound {
+
+class SDL2GUI3DAlt : VirtualGui3DAlt, VirtualSound {
+	
+	static const bool prefer_highend_audio = true;
+	
+protected:
     SDL_Window* win = NULL;
     SDL_Renderer* rend = NULL;
     SDL_RendererInfo rend_info;
 	SDL_GLContext glcontext = 0;
+	SDL_AudioSpec audio_fmt, audio_desired;
+	SDL_AudioDeviceID audio_dev = 0;
 	bool is_open = false;
 	bool is_maximized = false;
 	bool is_sizeable = false;
@@ -40,12 +40,18 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt, VirtualSound {
 	int mouse_zdelta, x, y, w, h, dx, dy;
 	Point prev_mouse_pt, mouse_pt;
 	
+	int64						serial;
+	SystemDraw					sysdraw;
+	SystemSound					syssnd;
+	Sppp::VolatileSoundBuffer	snd_buf;
 	
+	
+	
+public:
 	Size            GetSize() override;
 	dword           GetMouseButtons() override;
 	dword           GetModKeys() override;
 	bool            IsMouseIn() override;
-	//bool            ProcessEvent(bool *quit) override;
 	bool            Poll(Upp::CtrlEvent& e) override;
 	void            WaitEvent(int ms) override;
 	bool            IsWaitingEvent() override;
@@ -60,33 +66,32 @@ struct SDL2GUI3DAlt : VirtualGui3DAlt, VirtualSound {
 	
 	SystemSound&	BeginPlay() override;
 	void			CommitPlay() override;
-	int				GetSampleRate() override;
+	int				GetAudioSampleRate() override {return audio_fmt.samples;}
+	int				GetAudioChannels() override {return audio_fmt.channels;}
+	int				GetAudioFrequency() override {return audio_fmt.freq;}
+	int				GetAudioSampleSize() override;
+	bool			IsAudioSampleFloating() override;
 	void			UndoPlay() override;
 	
-	int64					serial;
-	//GLDraw				gldraw;
-	SystemDraw				sysdraw;
-	SystemSound				syssnd;
-	SDL2GUI3DAlt_Sound		native_snd;
 	
-	//void Attach(SDL_Window *win, SDL_GLContext glcontext);
-	//void Detach();
-	bool Create(const Rect& rect, const char *title, bool init_ecs);
-	void Destroy();
-	void Maximize(bool b=true);
-	bool IsCaptured() const {return mouse_captured;}
-	bool IsOpen() const {return is_open;}
+	bool			Create(const Rect& rect, const char *title, bool init_ecs);
+	void			Destroy();
+	void			PutKeyFlags();
+	void			RecvAudio(Uint8* stream, int len);
+	void			Maximize(bool b=true);
+	SDL2GUI3DAlt&	Sizeable(bool b=true) {is_sizeable = b; return *this;}
+	void			SetDesiredAudioFmt(int sample_freq, int sample_bytes, bool is_sample_floating, int channels, int sample_rate);
+	bool			IsCaptured() const {return mouse_captured;}
+	bool			IsOpen() const {return is_open;}
 	SDL2GUI3DAlt_MachineData* GetData() {return data;}
-	void PutKeyFlags();
 	
-	SDL2GUI3DAlt& Sizeable(bool b=true) {is_sizeable = b; return *this;}
 	
-	bool InitMachine();
-	bool DeinitMachine();
-	void Render(bool do_render);
-	void RenderFrame();
-	void RenderCamera();
-	void RenderWindows();
+	bool			InitMachine();
+	bool			DeinitMachine();
+	void			Render(bool do_render);
+	void			RenderFrame();
+	void			RenderCamera();
+	void			RenderWindows();
 	
 	SDL2GUI3DAlt();
 	~SDL2GUI3DAlt();

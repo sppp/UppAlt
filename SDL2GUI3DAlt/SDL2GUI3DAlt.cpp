@@ -35,15 +35,68 @@ void EnableOpenGLDebugMessages(bool b) {__enable_opengl_debug = b;}
 SDL2GUI3DAlt_MachineData __sdl2data;
 SDL2GUI3DAlt* __current_SDL2GUI3DAlt;
 
+void StaticSDL2GUI3DAltAudio(void* userdata, Uint8* stream, int len) {
+	if (userdata)
+		((SDL2GUI3DAlt*)userdata)->RecvAudio(stream, len);
+	else if (__current_SDL2GUI3DAlt)
+		__current_SDL2GUI3DAlt->RecvAudio(stream, len);
+}
+
+
 
 SDL2GUI3DAlt::SDL2GUI3DAlt() {
 	__current_SDL2GUI3DAlt = this;
 	data = &__sdl2data;
+	
+	SDL_zero(audio_fmt);
+	
+	
+	if (prefer_highend_audio) {
+		SetDesiredAudioFmt(
+			48000, // try to get 'high-end' frequency (higher is overkill)
+			4, true, // 32bit float
+			2,
+			512 // smaller samplerate is better (highend soundcards supports -> faster response & realtime)
+		);
+	}
+	else {
+		SetDesiredAudioFmt(
+			44100,
+			2, false,
+			2,
+			1024
+		);
+	}
+	
+	
 }
 
 SDL2GUI3DAlt::~SDL2GUI3DAlt() {
 	if (is_open)
 		Quit();
+}
+
+void SDL2GUI3DAlt::SetDesiredAudioFmt(int sample_freq, int sample_bytes, bool is_sample_floating, int channels, int sample_rate) {
+	SDL_zero(audio_desired);
+	audio_desired.freq = sample_freq;
+	audio_desired.format = AUDIO_S16;
+	if (!is_sample_floating) {
+		switch (sample_bytes) {
+			case 1:	audio_desired.format = AUDIO_S8; break;
+			case 2:	audio_desired.format = AUDIO_S16; break;
+			case 4:
+			case 8:
+			default:
+					audio_desired.format = AUDIO_S32; break;
+		}
+	}
+	else {
+		audio_desired.format = AUDIO_F32;
+	}
+	audio_desired.channels = channels;
+	audio_desired.samples = sample_rate;
+	audio_desired.callback = StaticSDL2GUI3DAltAudio;
+	audio_desired.userdata = this;
 }
 
 SDL2GUI3DAlt* SDL2GUI3DAlt::Current() {
@@ -183,6 +236,34 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 	#endif
 	
 	
+	// Sound
+	if (1) {
+		SDL_zero(audio_fmt);
+		audio_dev = SDL_OpenAudioDevice(NULL, 0, &audio_desired, &audio_fmt, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+		if (audio_dev == 0) {
+		    LOG("SDL2GUI3DAlt::Create: error: failed to open audio: " << SDL_GetError());
+		}
+		else {
+		    if (audio_fmt.format != audio_desired.format) {
+				// we let this one thing change.
+		        LOG("SDL2GUI3DAlt::Create: warning: couldn't get desired audio format.");
+		    }
+		    
+			snd_buf.SetSize(
+				GetAudioSampleSize(),
+				IsAudioSampleFloating(),
+				audio_fmt.freq,
+				audio_fmt.samples,
+				audio_fmt.channels,
+				2
+			);
+			
+		    SDL_PauseAudioDevice(audio_dev, 0); // start audio playing.
+		}
+		
+	}
+	
+	
 	// Init ECS machine
 	if (init_ecs && !InitMachine())
 		return false;
@@ -192,6 +273,10 @@ bool SDL2GUI3DAlt::Create(const Rect& rect, const char *title, bool init_ecs) {
 }
 
 void SDL2GUI3DAlt::Quit() {
+	if (!audio_dev) {
+		SDL_CloseAudioDevice(audio_dev);
+		audio_dev = 0;
+	}
 	GetDrawCommandCache().Clear();
 	DeinitMachine();
     TTF_Quit();
@@ -201,45 +286,17 @@ void SDL2GUI3DAlt::Quit() {
 }
 
 SystemSound& SDL2GUI3DAlt::BeginPlay() {
-	syssnd.Set(&native_snd);
+	syssnd.Set(&snd_buf);
 	
 	return syssnd;
 }
 
 void SDL2GUI3DAlt::CommitPlay() {
-	
-	TODO
-	
+	// Nothing to do here. This doesn't have double buffer.
 }
 
 void SDL2GUI3DAlt::UndoPlay() {
-	
-	TODO
-	
-}
-
-int SDL2GUI3DAlt::GetSampleRate() {
-	
-	TODO
-	
-}
-
-void SDL2GUI3DAlt_Sound::Put(float* v, int size, bool realtime) {
-	
-	TODO
-	
-}
-
-int SDL2GUI3DAlt_Sound::GetQueueSize() const {
-	
-	TODO
-	
-}
-
-int SDL2GUI3DAlt_Sound::GetSampleRate() const {
-	
-	TODO
-	
+	// Nothing to do here. This doesn't have double buffer.
 }
 
 Size SDL2GUI3DAlt::GetSize() {
@@ -531,6 +588,85 @@ void  SDL2GUI3DAlt::CommitDraw() {
 	}
 }
 
+int SDL2GUI3DAlt::GetAudioSampleSize() {
+	int sample_size = 0;
+	switch(audio_fmt.format) {
+		case AUDIO_S8:  sample_size = 1; break;
+		case AUDIO_S16: sample_size = 2; break;
+		case AUDIO_S32: sample_size = 4; break;
+		case AUDIO_F32: sample_size = 4; break;
+		default: break;
+	}
+	return sample_size;
+}
+
+bool SDL2GUI3DAlt::IsAudioSampleFloating() {
+	return audio_fmt.format == AUDIO_F32;
+}
+
+void SDL2GUI3DAlt::RecvAudio(Uint8* stream, int len) {
+	int sample_size = GetAudioSampleSize();
+	
+	if (len % sample_size != 0) {
+		LOG("SDL2GUI3DAlt::RecvAudio: error: invalid sample size in read length");
+		return;
+	}
+	
+	int channels = snd_buf.GetChannels();
+	int read_total_samples = len / sample_size;
+	if (read_total_samples % channels != 0) {
+		LOG("SDL2GUI3DAlt::RecvAudio: error: invalid channel size in read length");
+		return;
+	}
+	int read_ch_samples = read_total_samples / channels;
+	
+	int sample_rate = snd_buf.GetSampleRate();
+	if (read_ch_samples % sample_rate != 0) {
+		LOG("SDL2GUI3DAlt::RecvAudio: error: invalid sample rate in read length");
+		return;
+	}
+	int read_frames = read_ch_samples / sample_rate;
+	
+	int queue_samples = snd_buf.GetQueueSize(); // per 1 channel (not total samples)
+	int queue_frames = queue_samples / sample_rate;
+	ASSERT(queue_samples % sample_rate == 0);
+	
+	snd_buf.Get(stream, len);
+	
+	/*static int counter;
+	
+	if (counter++ == 1000) {
+		float* it = (float*)stream;
+		for(int i = 0; i < read_total_samples; i++) {
+			float f = it[i];
+			LOG(i << ": " << DblStr(f));
+		}
+		LOG("");
+		TODO
+	}*/
+	
+	/*float* it = (float*)stream;
+	float* end = it + read_total_samples;
+	for(int i = 0; i < read_ch_samples; i++)
+		for(int j = 0; j < channels; j++)
+			*it++ = j == 0 ? 1.0 : 0.0;;*/
+	
+	
+	/*int cpy_frames = min(read_frames, queue_frames);
+	int zero_frames = read_frames - cpy_frames;
+	
+	if (cpy_frames > 0) {
+		int cpy_total_samples = cpy_frames * sample_rate * channels;
+		ASSERT(cpy_total_samples > 0);
+		snd_buf.Get((float*)stream, cpy_total_samples);
+	}
+	
+	if (zero_frames > 0) {
+		float* zero_begin = (float*)stream;
+		zero_begin += cpy_frames * channels * sample_rate;
+		memset(zero_begin, 0, zero_frames * channels * sample_rate);
+	}*/
+}
 
 
 

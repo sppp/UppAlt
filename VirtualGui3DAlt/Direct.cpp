@@ -66,12 +66,14 @@ void DirectWindow::RecvAudioSink(AudioSource& src, float dt) {
 			av_sync_age = Modulus(av_sync_age, aconfig.sync_dt);
 		
 		aconfig.sample_pos = 0;
+		aconfig.sync = true;
 		
 		src.Play(aconfig, snd);
 		
 		VirtualSoundPtr->CommitPlay();
 	}
-	else if (snd.IsDemanding()) {
+	else if (!snd.IsQueueFull()) {
+		aconfig.sync = false;
 		src.Play(aconfig, snd);
 	}
 	else {
