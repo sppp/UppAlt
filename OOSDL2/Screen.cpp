@@ -121,6 +121,10 @@ void Screen::Close0() {
 		SDL_DestroyWindow(win);
 		win = 0;
 	}
+	if (fb) {
+        SDL_DestroyTexture(fb);
+        fb = 0;
+    }
 }
 
 void Screen::Maximize(bool b) {

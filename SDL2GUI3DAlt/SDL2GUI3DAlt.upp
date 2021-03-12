@@ -13,6 +13,8 @@ file
 	After.h,
 	SDL2GUI3DAlt.cpp,
 	Render.cpp,
+	System.h,
+	System.cpp,
 	"Gui Platform" readonly separator,
 	DrawBackend.h,
 	DrawBackend.cpp;

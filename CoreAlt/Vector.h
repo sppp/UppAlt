@@ -40,9 +40,12 @@ public:
 	One(T* obj) : obj(obj) {}
 	~One() { Clear(); }
 
-	void Create() { Clear(); obj = new T(); }
+	T& Create() { Attach(new T()); return *obj;}
+	template <class... Args>
+	T& Create(Args&&... args) { T *q = new T(std::forward<Args>(args)...); Attach(q); return *q; }
+	void Attach(T* obj) {Clear(); this->obj = obj;}
 	void Clear() { if (obj) { delete obj; obj = NULL; } }
-	void operator=(T* obj) { Clear(); this->obj = obj; }
+	void operator=(T* obj) { Attach(obj); }
 	bool Is() const { return obj != NULL; }
 	bool IsEmpty() const { return obj == NULL; }
 	T* operator->() {ASSERT(obj); return obj;}
@@ -59,7 +62,7 @@ public:
 	operator const T&() const {ASSERT(obj); return *obj;}
 	
 	template <class K>
-	void CreateAbstract() {static_assert(std::is_base_of<T, K>(), "Class K must be base of T"); Clear(); obj = new K();}
+	void CreateAbstract() {static_assert(std::is_base_of<T, K>(), "Class K must be base of T"); Attach(new K());}
 	
 };
 

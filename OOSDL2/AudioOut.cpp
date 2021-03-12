@@ -32,6 +32,9 @@ bool AudioOutput::IsSampleFloating() {
 }
 
 void AudioOutput::Put(Uint8* stream, int len) {
+	if (snd_buf.IsEmpty())
+		return;
+	
 	int sample_size = GetSampleSize();
 	
 	if (len % sample_size != 0) {
@@ -59,40 +62,6 @@ void AudioOutput::Put(Uint8* stream, int len) {
 	ASSERT(queue_samples % sample_rate == 0);
 	
 	snd_buf.Get(stream, len);
-	
-	/*static int counter;
-	
-	if (counter++ == 1000) {
-		float* it = (float*)stream;
-		for(int i = 0; i < read_total_samples; i++) {
-			float f = it[i];
-			LOG(i << ": " << DblStr(f));
-		}
-		LOG("");
-		TODO
-	}*/
-	
-	/*float* it = (float*)stream;
-	float* end = it + read_total_samples;
-	for(int i = 0; i < read_ch_samples; i++)
-		for(int j = 0; j < channels; j++)
-			*it++ = j == 0 ? 1.0 : 0.0;;*/
-	
-	
-	/*int cpy_frames = min(read_frames, queue_frames);
-	int zero_frames = read_frames - cpy_frames;
-	
-	if (cpy_frames > 0) {
-		int cpy_total_samples = cpy_frames * sample_rate * channels;
-		ASSERT(cpy_total_samples > 0);
-		snd_buf.Get((float*)stream, cpy_total_samples);
-	}
-	
-	if (zero_frames > 0) {
-		float* zero_begin = (float*)stream;
-		zero_begin += cpy_frames * channels * sample_rate;
-		memset(zero_begin, 0, zero_frames * channels * sample_rate);
-	}*/
 }
 
 bool AudioOutput::Open0() {
@@ -108,7 +77,7 @@ bool AudioOutput::Open0() {
 	        LOG("OOSDL2::AudioOutput::Open0: warning: couldn't get desired audio format.");
 	    }
 	    
-	    //int audio_frames = max(1, 1024 / audio_fmt.samples);
+	    int audio_frames = 2; //max(1, 1024 / audio_fmt.samples);
 	    
 		snd_buf.SetSize(
 			GetSampleSize(),
@@ -116,7 +85,7 @@ bool AudioOutput::Open0() {
 			audio_fmt.freq,
 			audio_fmt.samples,
 			audio_fmt.channels,
-			2
+			audio_frames
 		);
 		snd_buf.Zero();
 		
@@ -127,8 +96,10 @@ bool AudioOutput::Open0() {
 }
 
 void AudioOutput::Close0() {
-	if (!audio_dev) {
+	if (audio_dev) {
+		SDL_PauseAudioDevice(audio_dev, 1);
 		SDL_CloseAudioDevice(audio_dev);
+		snd_buf.Clear();
 		audio_dev = 0;
 	}
 }

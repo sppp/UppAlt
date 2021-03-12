@@ -12,16 +12,16 @@ SDL2GUI3DAlt*				__current_SDL2GUI3DAlt;
 
 
 
-SDL2GUI3DAlt::SDL2GUI3DAlt() {
+SDL2GUI3DAlt::SDL2GUI3DAlt(void* sys) : sys(sys) {
 	__current_SDL2GUI3DAlt = this;
 	//data = &__sdl2data;
-	desired_title = "SDL2 ECS machine";
+	desired_title = "Unnamed";
 	
 }
 
 SDL2GUI3DAlt::~SDL2GUI3DAlt() {
-	if (is_open)
-		Close();
+	/*if (is_open)
+		Close();*/
 }
 
 void SDL2GUI3DAlt::RecvAudio(Uint8* stream, int len) {
@@ -33,7 +33,7 @@ SDL2GUI3DAlt* SDL2GUI3DAlt::Current() {
 	return __current_SDL2GUI3DAlt;
 }
 
-bool SDL2GUI3DAlt::InitMachine() {
+/*bool SDL2GUI3DAlt::InitMachine() {
 	Machine& mach = GetMachine();
 	
 	try {
@@ -54,9 +54,9 @@ bool SDL2GUI3DAlt::InitMachine() {
 	    mach.Add<MotionControllerSystem>();
 	    mach.Add<WorldLogicSystem>();
 	    
-	    /*bool physics = false;
+	    bool physics = false;
 	    if (physics)
-			mach.Add<PhysicsSystem>();*/
+			mach.Add<PhysicsSystem>();
 	
 	    mach.Start();
 	    
@@ -74,15 +74,13 @@ bool SDL2GUI3DAlt::DeinitMachine() {
 	GetMachine().SetNotRunning();
 	
 	return true;
-}
+}*/
 
 bool SDL2GUI3DAlt::Open() {
 	ASSERT(!VirtualGui3DAltPtr);
-	ASSERT(!VirtualSoundPtr);
 	VirtualGui3DAltPtr = this;
-	VirtualSoundPtr = this;
 	
-	AddDefaultComponents();
+	/*AddDefaultComponents();
 	aout = FindComponent<OOSDL2::AudioOutput>();
 	scr = FindComponent<OOSDL2::Screen>();
 	ev = FindComponent<OOSDL2::Events>();
@@ -98,21 +96,16 @@ bool SDL2GUI3DAlt::Open() {
 		return false;
 	
 	
+	return true;*/
+	
 	return true;
 }
 
 void SDL2GUI3DAlt::Close() {
-	
-	OOSDL2::Bundle::Close();
+	//OOSDL2::Bundle::Close();
 }
 
-void SDL2GUI3DAlt::CommitPlay() {
-	// Nothing to do here. This doesn't have double buffer.
-}
 
-void SDL2GUI3DAlt::UndoPlay() {
-	// Nothing to do here. This doesn't have double buffer.
-}
 
 
 

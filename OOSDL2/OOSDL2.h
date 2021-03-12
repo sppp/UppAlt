@@ -50,6 +50,8 @@ protected:
 public:
 	Component(Context* ctx) : ctx(ctx) {}
 	
+	Context* GetContext() const {return ctx;}
+	
 };
 
 
@@ -111,6 +113,7 @@ protected:
 	
     SDL_Window* win = NULL;
     SDL_Renderer* rend = NULL;
+    SDL_Texture* fb = NULL;
     SDL_RendererInfo rend_info;
     Rect desired_rect;
 	Size screen_sz;

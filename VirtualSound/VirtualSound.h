@@ -14,7 +14,7 @@ public:
 	
 };
 
-struct VirtualSound {
+/*struct VirtualSound {
 	virtual SystemSound&	BeginPlay() = 0;
 	virtual void			CommitPlay() = 0;
 	virtual bool			IsAudioSampleFloating() = 0;
@@ -26,7 +26,7 @@ struct VirtualSound {
 	
 };
 
-extern VirtualSound* VirtualSoundPtr;
+extern VirtualSound* VirtualSoundPtr;*/
 
 
 //#define SOUNDPLATFORM_CTRL_TOP_DECLS   Ctrl *owner_window;

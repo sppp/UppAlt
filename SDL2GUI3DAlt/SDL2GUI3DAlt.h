@@ -6,20 +6,16 @@
 
 NAMESPACE_UPP
 
-//struct SDL2GUI3DAlt_MachineData;
+
 class SDL2GUI3DAlt;
 
 
-
-class SDL2GUI3DAlt :
-	public Sppp::OOSDL2::Bundle,
-	VirtualGui3DAlt,
-	VirtualSound
+class SDL2GUI3DAlt : VirtualGui3DAlt
 {
 	
 	
 protected:
-	
+	friend class SDL2GUI3DAltSystem;
 	//SDL2GUI3DAlt_MachineData* data = 0;
 	
 	Sppp::OOSDL2::AudioOutput* aout = 0;
@@ -29,6 +25,7 @@ protected:
 	SystemSound					empty_snd;
 	SystemDraw					empty_draw;
 	String						desired_title;
+	void*						sys;
 	
 	
 public:
@@ -49,14 +46,6 @@ public:
 	void            Quit() override {Close();}*/
 
 	
-	SystemSound&	BeginPlay() override {return aout ? aout->GetSystemSound() : empty_snd;}
-	void			CommitPlay() override;
-	int				GetAudioSampleRate() override {return aout ? aout->GetSampleRate() : 0;}
-	int				GetAudioChannels() override {return aout ? aout->GetChannels() : 0;}
-	int				GetAudioFrequency() override {return aout ? aout->GetFrequency() : 0;}
-	int				GetAudioSampleSize() override {return aout ? aout->GetSampleSize() : 0;}
-	bool			IsAudioSampleFloating() override {return aout ? aout->IsSampleFloating() : 0;}
-	void			UndoPlay() override;
 	
 	
 	bool			Open();
@@ -66,14 +55,14 @@ public:
 	void			RecvAudio(Uint8* stream, int len);
 	
 	
-	bool			InitMachine();
-	bool			DeinitMachine();
+	//bool			InitMachine();
+	//bool			DeinitMachine();
 	//void			Render(bool do_render);
 	//void			RenderFrame();
 	//void			RenderCamera();
 	//void			RenderWindows();
 	
-	SDL2GUI3DAlt();
+	SDL2GUI3DAlt(void* sys);
 	~SDL2GUI3DAlt();
 	
 	static SDL2GUI3DAlt* Current();
@@ -81,27 +70,20 @@ public:
 };
 
 
+bool Open_SDL2GUI3DAlt_ECS(bool gui);
+void Close_SDL2GUI3DAlt_ECS();
 
 END_UPP_NAMESPACE
 
 
-#define GUI_APP_MAIN_(init_ecs) \
+#define GUI_APP_MAIN_(gui) \
 void GuiMainFn_(); \
 \
 extern "C" int main(int argc, char *argv[]) {\
 	::UPP::AppInit__(argc, (const char **)argv, (const char**)environ); \
-	Sppp::SDL2GUI3DAlt gui; \
-	if (gui.Open()) { \
-		if (init_ecs) {\
-			if (gui.InitMachine()) { \
-				GuiMainFn_(); \
-				gui.DeinitMachine(); \
-			} \
-		} \
-		else { \
-			GuiMainFn_(); \
-		} \
-		gui.Close(); \
+	if (Open_SDL2GUI3DAlt_ECS(gui)) { \
+		GuiMainFn_(); \
+		Close_SDL2GUI3DAlt_ECS(); \
 	} \
 	return ::UPP::AppExit__(); \
 } \
