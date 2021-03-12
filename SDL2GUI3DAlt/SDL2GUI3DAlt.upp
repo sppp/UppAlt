@@ -1,7 +1,8 @@
 description "\3770,128,128";
 
 uses
-	GL;
+	GL,
+	OOSDL2;
 
 library
 	"SDL2 SDL2_ttf SDL2_image";

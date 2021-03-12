@@ -41,13 +41,14 @@ public:
 	void Clear() {unused.Clear(); owned.Clear();}
 };
 
-inline DrawCommandCache& GetDrawCommandCache() {return Single<DrawCommandCache>();}
+//inline DrawCommandCache& GetDrawCommandCache() {return Single<DrawCommandCache>();}
 
 
 
 
 
 class SDraw {
+	DrawCommandCache* cache = NULL;
 	DrawCommand *prev;
 	DrawCommand *next;
 	DrawCommand *begin;

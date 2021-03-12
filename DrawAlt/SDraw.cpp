@@ -16,7 +16,7 @@ void DrawCommandCache::Return(DrawCommand* cmd) {
 
 
 DrawCommand& SDraw::GetNext() {
-	DrawCommand* cmd = &GetDrawCommandCache().Get();
+	DrawCommand* cmd = &cache->Get();
 	cmd->prev = cur;
 	if (cur)
 		cur->next = cmd;
@@ -280,11 +280,10 @@ void SDraw::Link() {
 	next->prev = end;
 	prev->next = begin;
 	if (free_begin) {
-		DrawCommandCache& cache = GetDrawCommandCache();
 		DrawCommand* free = free_begin;
 		while (free && free != free_end) {
 			if (free->is_cached)
-				cache.Return(free);
+				cache->Return(free);
 			free = free->next;
 		}
 	}

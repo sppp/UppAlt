@@ -8,7 +8,7 @@ uint32 DirectWindow::prev_ticks;
 
 DirectWindow::DirectWindow() {
 	SetFPS(60);
-	SetAudioSyncInterval(0.5);
+	SetAudioSyncInterval(1.5);
 	
 }
 

@@ -5,6 +5,8 @@ NAMESPACE_UPP
 using namespace Sppp;
 
 
+#if 0
+
 void SDL2GUI3DAlt::Render(bool do_render) {
 	if (data->ents.IsEmpty())
 		data->ents = GetMachine().Get<EntityStore>();
@@ -75,8 +77,6 @@ void SDL2GUI3DAlt::RenderFrame() {
 	
 }
 
-
-#if 0
 
 
 
