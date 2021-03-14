@@ -96,7 +96,7 @@ Value* Value::GetMapSub(String key, Value* def) {
 		ValueMap& map = IsMap() ? Get<ValueMap>() : Get<ValueArrayMapComb>().map;
 		int i = map.Find(key);
 		if (i >= 0)
-			return &map.GetPos(i);
+			return &map.GetValue(i);
 		else
 			return NULL;
 	}
@@ -122,7 +122,7 @@ Value* Value::GetAddMapSub(String key, Value* def) {
 		ValueMap& map = IsMap() ? Get<ValueMap>() : Get<ValueArrayMapComb>().map;
 		int i = map.Find(key);
 		if (i >= 0)
-			return &map.GetPos(i);
+			return &map.GetValue(i);
 		else if (def)
 			return &map.Add(key, *def);
 		else
@@ -159,7 +159,7 @@ void ValueMap::DeepCopyArrayMap(ValueMap& map) {
 	Clear();
 	for(int i = 0; i < map.GetCount(); i++) {
 		String key = map.GetKey(i);
-		Value& from = map.GetPos(i);
+		Value& from = map.GetValue(i);
 		Value& dst = Add(key);
 		dst.DeepCopyArrayMap(from);
 	}
@@ -178,7 +178,7 @@ void ValueArrayMapComb::DeepCopyArrayMap(ValueArrayMapComb& am) {
 	}
 	for(int i = 0; i < am.map.GetCount(); i++) {
 		String key = am.map.GetKey(i);
-		Value& from = am.map.GetPos(i);
+		Value& from = am.map.GetValue(i);
 		Value& dst = map.Add(key);
 		dst.DeepCopyArrayMap(from);
 	}

@@ -163,6 +163,9 @@ template <class T> T& Value::Get() const {
 	throw Exc("Unexpected value type");
 }
 
+template<class T> inline StringT<T>& StringT<T>::operator=(const Value& c) {return *this = c.ToString();}
+
+
 class ValueArray {
 	typedef Array<Value> A;
 	A values;
@@ -211,8 +214,8 @@ public:
 	Value& Add(String key) {keys.Add(key); return values.Add();}
 	Value& GetAdd(String key) {int i = Find(key); if (i >= 0) return values[i]; return Add(key);}
 	Value& GetAdd(String key, const Value& def) {int i = Find(key); if (i >= 0) return values[i]; return Add(key, def);}
-	Value TryGet(String key, Value def=Value()) {int i = Find(key); if (i >= 0) return GetPos(i); else return def;}
-	Value* TryFind(String key) {int i = Find(key); if (i >= 0) return &GetPos(i); return NULL;}
+	Value TryGet(String key, Value def=Value()) {int i = Find(key); if (i >= 0) return GetValue(i); else return def;}
+	Value* TryFind(String key) {int i = Find(key); if (i >= 0) return &GetValue(i); return NULL;}
 	int Find(String key) const {for(int i = 0; i < keys.GetCount(); i++) if (keys[i] == key) return i; return -1;}
 	Value& Get(String key) {int i = Find(key); if (i == -1) throw Exc("Unexpected key"); return values[i];}
 	int GetIterPos(Value* v) const {for(int i = 0; i < values.GetCount(); i++) if (&values[i] == v) return i; return -1;}
@@ -220,9 +223,9 @@ public:
 	void Clear() {keys.Clear(); values.Clear();}
 	int GetCount() const {return values.GetCount();}
 	Value& operator[](int i) {return values[i];}
-	Value& GetPos(int i) {return values[i];}
+	Value& GetValue(int i) {return values[i];}
 	const Value& operator[](int i) const {return values[i];}
-	const Value& GetPos(int i) const {return values[i];}
+	const Value& GetValue(int i) const {return values[i];}
 	String GetKey(int i) const {return keys[i];}
 	void DeepCopyArrayMap(ValueMap& map);
 	

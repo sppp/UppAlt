@@ -7,7 +7,7 @@
 NAMESPACE_UPP_BEGIN
 
 class Stream;
-
+class Value;
 
 inline bool IsOctDigit(char c) { return c >= '0' && c <= '7'; }
 inline bool IsHexDigit(char c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
@@ -157,6 +157,7 @@ public:
 	
 	void Serialize(Stream& s);
 	
+	StringT& operator=(const Value& c);
 	StringT& operator=(const T* c) {
 		Clear();
 		if (!c) return *this;

@@ -196,8 +196,18 @@ void NumberParser::Parse() {
 }
 
 
-void CParser::IgnoreNewline(bool b) {
-	ignore_newline = b;
+
+
+
+
+
+
+void CParser::SkipSpaces() {
+	while (!IsEnd()) {
+		if (!IsSpace(input[pos]))
+			break;
+		pos++;
+	}
 }
 
 bool CParser::IsEnd() const {
@@ -229,6 +239,7 @@ bool CParser::GetId(String& str) {
 	if (ip.is_valid) {
 		pos = ip.pos;
 		str = ip.id;
+		DoSpaces();
 		return true;
 	}
 	return false;
@@ -241,6 +252,7 @@ bool CParser::GetInt(int64& i64) {
 		np.type == NumberParser::OCT) {
 		pos = np.pos;
 		i64 = np.i64;
+		DoSpaces();
 		return true;
 	}
 	return false;
@@ -251,6 +263,7 @@ bool CParser::GetFloating(double& dbl) {
 	if (np.type == NumberParser::FLOAT || np.type == NumberParser::DOUBLE) {
 		pos = np.pos;
 		dbl = np.d;
+		DoSpaces();
 		return true;
 	}
 	return false;
@@ -260,6 +273,7 @@ String CParser::ReadId() {
 	IdParser ip(input, pos);
 	if (ip.is_valid) {
 		pos = ip.pos;
+		DoSpaces();
 		return ip.id;
 	}
 	throw Exc("Couldn't read id");
@@ -269,6 +283,7 @@ String CParser::ReadString() {
 	StringParser ip(input, pos);
 	if (ip.is_valid) {
 		pos = ip.pos;
+		DoSpaces();
 		return ip.str;
 	}
 	throw Exc("Couldn't read string");
@@ -280,6 +295,7 @@ int CParser::ReadInt() {
 		np.type == NumberParser::HEX ||
 		np.type == NumberParser::OCT) {
 		pos = np.pos;
+		DoSpaces();
 		return np.i32;
 	}
 	throw Exc("Couldn't read int");
@@ -289,14 +305,17 @@ double CParser::ReadNumber() {
 	NumberParser np(input, pos);
 	if (np.type != NumberParser::INVALID) {
 		pos = np.pos;
+		DoSpaces();
 		return np.d;
 	}
 	throw Exc("Couldn't read number");
 }
 
 void CParser::PassChar(char chr) {
-	if (pos < input.GetCount() && input[pos] == chr)
+	if (pos < input.GetCount() && input[pos] == chr) {
 		pos++;
+		DoSpaces();
+	}
 	else {
 		String s; s.Cat(chr);
 		throw Exc("Char didn't match: " + s);
@@ -311,6 +330,7 @@ bool CParser::Id(String id) {
 	IdParser ip(input, pos);
 	if (ip.is_valid && ip.id == id) {
 		pos = ip.pos;
+		DoSpaces();
 		return true;
 	}
 	return false;
@@ -319,6 +339,7 @@ bool CParser::Id(String id) {
 bool CParser::Char(char chr) {
 	if (IsChar(chr)) {
 		pos++;
+		DoSpaces();
 		return true;
 	}
 	return false;

@@ -58,14 +58,14 @@ class CParser {
 	String input;
 	int pos = 0;
 	
-	bool ignore_newline = true;
-	
+	bool pass_whitespace = true;
+	void DoSpaces() {if (pass_whitespace) SkipSpaces();}
+	void SkipSpaces();
 public:
 	typedef CParser CLASSNAME;
 	CParser() {}
 	CParser(String s) {input = s;}
 	
-	void IgnoreNewline(bool b);
 	
 	void Next() {pos++;}
 	bool IsEnd() const;
