@@ -523,7 +523,7 @@ inline void IterSwapValue(H ha, H hb, I a, I b, J va, J vb) { if (a != b) {Swap(
 template <class H, class I, class J, class Less>
 inline void OrderIterValue2__(H ha, H hb, I a, I b, J va, J vb, const Less& less)
 {
-	if(less(**b, **a)) {
+	if(less(*b, *a)) {
 		IterSwapValue<H,I,J>(ha, hb, a, b, va, vb);
 	}
 }
@@ -546,7 +546,7 @@ inline void FinalSortValue__(H hbegin, H hend, I begin, I end, J vbegin, J vend,
 		J vnext = vlast;
 		J vptr = vlast;
 		for(;;) {
-			if(less(**best, **--ptr)) {  // best holds, scan for better candidate
+			if(less(*best, *--ptr)) {  // best holds, scan for better candidate
 				do if(ptr == begin) { // best is the final minimum
 					IterSwapValue<H,I,J>(hbegin, hbest, begin, best, vbegin, vbest);
 					++hbegin;
@@ -554,7 +554,7 @@ inline void FinalSortValue__(H hbegin, H hend, I begin, I end, J vbegin, J vend,
 					++vbegin;
 					goto NEXT_ITEM;
 				}
-				while(less(**best, **--ptr));
+				while(less(*best, *--ptr));
 				if(ptr == begin) { // begin is the final minimum, best is 2nd least
 					IterSwapValue<H,I,J>(++hbegin, hbest, ++begin, best, ++vbegin, vbest);
 					++hbegin;
@@ -613,7 +613,7 @@ void SortValue__(H hl, H hh, I l, I h, J vl, J vh, const Less& less)
 				I i = l + 2;
 				J vi = vl + 2;
 				for(; i != h - 1; ++i, ++vi)   // do partitioning; already l <= pivot <= h - 1
-					if(less(**i, **(l + 1)))
+					if(less(*i, *(l + 1)))
 						IterSwapValue<H,I,J>(++hii, hi, ++ii, i, ++vii, vi);
 			}
 			IterSwapValue<H,I,J>(hii, hl + 1, ii, l + 1, vii, vl + 1);          // put pivot back in between partitions
@@ -621,7 +621,7 @@ void SortValue__(H hl, H hh, I l, I h, J vl, J vh, const Less& less)
 			I iih = ii;
 			J viih = vii;
 			// Find middle range of elements equal to pivot
-			while(iih + 1 != h && !less(**ii, **(iih + 1))) {
+			while(iih + 1 != h && !less(*ii, *(iih + 1))) {
 				++hiih;
 				++iih;
 				++viih;

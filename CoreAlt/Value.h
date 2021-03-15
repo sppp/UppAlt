@@ -219,6 +219,8 @@ public:
 	int Find(String key) const {for(int i = 0; i < keys.GetCount(); i++) if (keys[i] == key) return i; return -1;}
 	Value& Get(String key) {int i = Find(key); if (i == -1) throw Exc("Unexpected key"); return values[i];}
 	int GetIterPos(Value* v) const {for(int i = 0; i < values.GetCount(); i++) if (&values[i] == v) return i; return -1;}
+	void SetAt(int i, const Value& v) {values[i] = v;}
+	
 	
 	void Clear() {keys.Clear(); values.Clear();}
 	int GetCount() const {return values.GetCount();}
